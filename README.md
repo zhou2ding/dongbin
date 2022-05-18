@@ -2,7 +2,6 @@
 ## 项目结构说明
 
 ```
-|── bfhummingbird：前端工程
 |── cmd
 |     |--- user_manager: 用户管理服务
 |     |--- blog_manager: 帖子管理服务
