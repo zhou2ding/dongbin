@@ -1,4 +1,4 @@
-package util
+package boot
 
 import (
 	"blog/pkg/cfg"

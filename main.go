@@ -1,9 +1,8 @@
 package main
 
-import (
-	"blog/pkg/util"
-)
+import "blog/pkg/boot"
 
 func main() {
-	util.StartUp()
+	appName := "zhoudongbin"
+	boot.StartUp(appName)
 }
