@@ -16,7 +16,7 @@ func StartUp(appName string) {
 	flag.Parse()
 
 	if cfgFile == "" {
-		cfgFile = "../config/app.toml"
+		cfgFile = "app.toml"
 	}
 	fmt.Println("configFile path is " + cfgFile)
 
