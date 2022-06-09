@@ -90,16 +90,48 @@ func (r *Redis) Get(key string, to interface{}, encode bool) error {
 	return nil
 }
 func (r *Redis) Del(key string) error {
+	if r.cli == nil {
+		if err := r.reconnect(); err != nil {
+			return err
+		}
+	}
+
+	if err := r.cli.Del(key).Err(); err != nil {
+		logger.GetLogger().Error("del cache failed", zap.String("key", key), zap.Error(err))
+		return err
+	}
 	return nil
 }
 func (r *Redis) Exists(key string) (bool, error) {
-	return false, nil
+	if r.cli == nil {
+		if err := r.reconnect(); err != nil {
+			return false, err
+		}
+	}
+
+	cmd := r.cli.Exists(key)
+	if err := cmd.Err(); err != nil {
+		logger.GetLogger().Error("exists cache failed", zap.String("key", key), zap.Error(err))
+		return false, err
+	}
+
+	return cmd.Val() > 0, nil
 }
 func (r *Redis) Expire(key string, timeout int) error {
+	if r.cli == nil {
+		if err := r.reconnect(); err != nil {
+			return err
+		}
+	}
+
+	if err := r.cli.Expire(key, time.Duration(timeout)*time.Second).Err(); err != nil {
+		logger.GetLogger().Error("set cache expire time failed", zap.String("key", key), zap.Error(err))
+		return err
+	}
 	return nil
 }
 func (r *Redis) Close() {
-
+	_ = r.cli.Close()
 }
 
 func (r *Redis) reconnect() error {
