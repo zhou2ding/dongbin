@@ -30,3 +30,7 @@ func InitCache() error {
 	}
 	return nil
 }
+
+func GetCache() Cache {
+	return gCache
+}

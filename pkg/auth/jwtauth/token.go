@@ -2,24 +2,24 @@ package jwtauth
 
 import "encoding/json"
 
-type Token struct {
+type jwtToken struct {
 	AccessCode string
 	Type       string
 	ExpireAt   int64
 }
 
-func (t *Token) GetAccessCode() string {
+func (t *jwtToken) GetAccessCode() string {
 	return t.AccessCode
 }
 
-func (t *Token) GetType() string {
+func (t *jwtToken) GetType() string {
 	return t.Type
 }
 
-func (t *Token) GetExpireAt() int64 {
+func (t *jwtToken) GetExpireAt() int64 {
 	return t.ExpireAt
 }
 
-func (t *Token) EncodeToJson() ([]byte, error) {
+func (t *jwtToken) EncodeToJson() ([]byte, error) {
 	return json.Marshal(t)
 }
