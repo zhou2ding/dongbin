@@ -2,9 +2,12 @@ package jwtauth
 
 import (
 	"blog/pkg/auth"
-	"blog/pkg/auth/jwtauth/store"
 	"blog/pkg/cfg"
+	"blog/pkg/logger"
 	"github.com/dgrijalva/jwt-go"
+	"go.uber.org/zap"
+	"strconv"
+	"time"
 )
 
 const defaultKey = "zdb564"
@@ -27,7 +30,7 @@ var (
 
 type JWTAuth struct {
 	opts  *options
-	store store.Store
+	store auth.Store
 }
 
 type options struct {
@@ -70,7 +73,7 @@ func InitJWTAuth() (auth.Author, error) {
 	return gAuthor, nil
 }
 
-func New(store store.Store, opts ...Option) *JWTAuth {
+func New(store auth.Store, opts ...Option) *JWTAuth {
 	o := defaultOptions
 	for _, opt := range opts {
 		opt(&o)
@@ -84,6 +87,85 @@ func New(store store.Store, opts ...Option) *JWTAuth {
 
 func GetAuthor() auth.Author {
 	return gAuthor
+}
+
+func (j *JWTAuth) GenerateToken(userID string) (auth.Token, error) {
+	now := time.Now()
+	expire := now.Add(time.Duration(j.opts.expired) * time.Second).UnixNano()
+
+	token := jwt.NewWithClaims(j.opts.signingMethod, &jwt.StandardClaims{
+		IssuedAt:  now.UnixNano(),
+		ExpiresAt: expire,
+		NotBefore: now.UnixNano(),
+		Subject:   userID,
+	})
+
+	accessToken, err := token.SignedString(j.opts.signingKey)
+	if err != nil {
+		logger.GetLogger().Error("SignedString failed", zap.Error(err))
+		return nil, err
+	}
+
+	err = j.callStore(func(s auth.Store) error {
+		return s.Set(userID+"_"+strconv.FormatInt(now.UnixNano(), 10), expire, j.opts.expired)
+	})
+	if err != nil {
+		logger.GetLogger().Error("set store failed", zap.Error(err))
+		return nil, err
+	}
+
+	return &jwtToken{accessToken, j.opts.tokenType, expire}, nil
+}
+
+func (j *JWTAuth) GetUserFromToken(token string) (string, error) {
+	claim, err := j.parseToken(token)
+	if err != nil {
+		return "", err
+	}
+	return claim.Subject, nil
+}
+
+func (j *JWTAuth) DestroyToken(token string) error {
+	claim, err := j.parseToken(token)
+	if err != nil {
+		return err
+	}
+
+	return j.callStore(func(s auth.Store) error {
+		return s.Del(claim.Subject)
+	})
+}
+
+func (j *JWTAuth) UpdateToken(token string) error {
+	claim, err := j.parseToken(token)
+	if err != nil {
+		return err
+	}
+
+	return j.callStore(func(s auth.Store) error {
+		expire := time.Now().Add(time.Duration(j.opts.expired) * time.Second).UnixNano()
+		return s.Set(claim.Subject+"_"+strconv.FormatInt(claim.IssuedAt, 10), expire, j.opts.expired)
+	})
+}
+
+func (j *JWTAuth) parseToken(tokenStr string) (*jwt.StandardClaims, error) {
+	if tokenStr == "" {
+		return nil, auth.ErrInvalidToken
+	}
+
+	token, _ := jwt.ParseWithClaims(tokenStr, &jwt.StandardClaims{}, j.opts.keyFunc)
+	if token == nil || token.Claims == nil {
+		return nil, auth.ErrInvalidToken
+	}
+	logger.GetLogger().Info("parse token", zap.String("user name", token.Claims.(*jwt.StandardClaims).Subject))
+	return token.Claims.(*jwt.StandardClaims), nil
+}
+
+func (j *JWTAuth) callStore(fn func(auth.Store) error) error {
+	if s := j.store; s != nil {
+		return fn(s)
+	}
+	return nil
 }
 
 func setSigningMethod(m jwt.SigningMethod) Option {
