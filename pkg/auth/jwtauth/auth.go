@@ -5,6 +5,7 @@ import (
 	"blog/pkg/cfg"
 	"blog/pkg/logger"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"strconv"
 	"time"
@@ -145,6 +146,71 @@ func (j *JWTAuth) UpdateToken(token string) error {
 	return j.callStore(func(s auth.Store) error {
 		expire := time.Now().Add(time.Duration(j.opts.expired) * time.Second).UnixNano()
 		return s.Set(claim.Subject+"_"+strconv.FormatInt(claim.IssuedAt, 10), expire, j.opts.expired)
+	})
+}
+
+func (j *JWTAuth) CheckToken(tokenStr string) (string, string, error) {
+	claim, err := j.parseToken(tokenStr)
+	if err != nil {
+		return "", "", err
+	}
+
+	token := claim.Subject + "_" + strconv.FormatInt(claim.IssuedAt, 10)
+	err = j.callStore(func(s auth.Store) error {
+		exist, err := s.Check(token)
+		if err != nil {
+			return err
+		}
+		if !exist {
+			logger.GetLogger().Error("CheckToken token not exist", zap.String("key", claim.Subject))
+			return auth.ErrInvalidToken
+		}
+
+		expire, err := s.Get(token)
+		if err != nil {
+			return err
+		}
+
+		now := time.Now().UnixNano()
+		if now > expire {
+			return auth.ErrExpiredToken
+		}
+		return nil
+	})
+
+	if err != nil {
+		return claim.Subject, token, err
+	}
+	return claim.Subject, token, nil
+}
+
+func (j *JWTAuth) CheckTokenWithUpdate(tokenStr string) (string, error) {
+	userName, token, err := j.CheckToken(tokenStr)
+	if err != nil {
+		logger.GetLogger().Error("CheckToken failed", zap.Error(err))
+		return "", err
+	}
+	if token == "" {
+		return "", errors.New("CheckTokenWithUpdate CheckToken empty token")
+	}
+
+	err = j.callStore(func(s auth.Store) error {
+		now := time.Now()
+		expire := now.Add(time.Duration(j.opts.expired) * time.Second).UnixNano()
+		ret := s.Set(token, expire, j.opts.expired)
+		_ = s.SetExpired(token, j.opts.expired)
+		return ret
+	})
+	if err != nil {
+		logger.GetLogger().Error("update token failed", zap.Error(err))
+		return "", err
+	}
+	return userName, nil
+}
+
+func (j *JWTAuth) Release() error {
+	return j.callStore(func(s auth.Store) error {
+		return s.Close()
 	})
 }
 
