@@ -10,22 +10,11 @@ const (
 )
 
 const (
-	MqHeaderAlertRule      = "alertRule"
-	MqHeaderDetectionData  = "detectionData"
-	MqHeaderSimulationData = "simulationData"
+	MqHeaderDemo = "demo_header"
 )
 
 const (
-	MqNameEvent     = "event"
-	MqNameDetection = "detection"
-)
-
-const (
-	DevicePanto int32 = 1
-	Device360   int32 = 2
-	DeviceTwm   int32 = 4
-	DeviceTwd2D int32 = 8
-	DeviceTwd3D int32 = 16
+	MqNameDemo = "demo_name"
 )
 
 func GetMqMessageType(message *msgqueue.Message) string {
