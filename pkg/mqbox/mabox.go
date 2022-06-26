@@ -8,3 +8,9 @@ type MqBox interface {
 	StartMqConsumer(topic string, name string, channel chan *Message) error
 	Publish(topic string, msg *Message) error
 }
+
+var gMqBox MqBox
+
+func GetMqBoxInstance() MqBox {
+	return gMqBox
+}
