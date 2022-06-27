@@ -1,7 +1,7 @@
 package mqbox
 
 type MqBox interface {
-	Init()
+	Init() error
 	Open() error
 	Close()
 	StartMqProducer(topic string) error
