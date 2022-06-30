@@ -1,5 +1,11 @@
 package mqbox
 
+import (
+	"blog/pkg/cfg"
+	"blog/pkg/logger"
+	"github.com/pkg/errors"
+)
+
 type MqBox interface {
 	Init() error
 	Open() error
@@ -13,4 +19,21 @@ var gMqBox MqBox
 
 func GetMqBoxInstance() MqBox {
 	return gMqBox
+}
+
+func InitMqBox() error {
+	mqType := cfg.GetViper().GetString("msg_queue.mq_type")
+	if mqType == "rabbitmq" || mqType == "" {
+
+	} else if mqType == "lightmq" {
+
+	} else {
+		return errors.New("unsupported message queue type")
+	}
+	return nil
+}
+
+func UnInitMqBox() {
+	logger.GetLogger().Info("UnInit MqBox")
+	GetMqBoxInstance().Close()
 }
