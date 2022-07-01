@@ -12,15 +12,6 @@ then
 	exit 1
 fi
 targetpath=${targetpath%*/}
-
-#先清理过期备份
-backupFileCnt=`ls $targetpath/mongo_all -l |grep "^d"|wc -l`
-for ((i=$backupSaveMonths; i<=$backupFileCnt; i++));do
-	delMonth=$((`date -d "-${i} month" "+%Y%m"`))
-	echo "delete expired backup files: $targetpath/mongo_all/$delMonth"
-	rm -rf $targetpath/mongo_all/$delMonth
-done
-
 host='127.0.0.1'
 port='10005'
 dbname='tsmp'
@@ -93,4 +84,23 @@ then
 	else
 		echo "MongoDB BackUp Fail"
 	fi
+fi
+
+#清理过期备份
+backupFileCnt=`ls $targetpath/mongo_all -l |grep "^d"|wc -l`
+if [[ $backupFileCnt -gt $backupSaveMonths ]];then
+	monArr=()
+	i=0
+	for mon in `ls $targetpath/mongo_all`;do
+		monArr[$i]=$mon
+		i=`expr $i + 1`
+	done
+
+	for ((j=0;j<${#monArr[@]};j++));do
+		diff=`expr ${#monArr[@]} - $backupSaveMonths`
+		if [[ $j -lt $diff ]];then
+			echo "clear expire backup files: $targetpath/mongo_all/${monArr[$j]}"
+			rm -rf $targetpath/mongo_all/${monArr[$j]}
+		fi
+	done
 fi

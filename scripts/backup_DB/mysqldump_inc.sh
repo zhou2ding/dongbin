@@ -21,14 +21,6 @@ password='root2021@tsmp_isv_cn'
 nowMonth=$(date "+%Y%m")
 nowDay=$(date "+%Y%m%d")
 
-#先清理过期备份
-backupFileCnt=`ls $targetpath/mysql_inc -l |grep "^d"|wc -l`
-for ((i=$backupSaveMonths; i<=$backupFileCnt; i++));do
-	delMonth=$((`date -d "-${i} month" "+%Y%m"`))
-	echo "delete expired backup files: $targetpath/mysql_inc/${delMonth}xx"
-	rm -rf $targetpath/mysql_inc/${delMonth}*
-done
-
 if [ ! "$(ls $targetpath)" ];then
 	#目标路径下为空，退出
 	echo "Empty target directory, wait for all backup execute"
@@ -96,3 +88,22 @@ for binlog in ${arr[@]};do
 		cp $binlog $targetpath/mysql_inc/${nowDay}
 	fi
 done
+
+#清理过期备份
+backupFileCnt=`ls $targetpath/mongo_all -l |grep "^d"|wc -l`
+if [[ $backupFileCnt -gt $backupSaveMonths ]];then
+	monArr=()
+	i=0
+	for mon in `ls $targetpath/mongo_all`;do
+		monArr[$i]=$mon
+		i=`expr $i + 1`
+	done
+
+	for ((j=0;j<${#monArr[@]};j++));do
+		diff=`expr ${#monArr[@]} - $backupSaveMonths`
+		if [[ $j -lt $diff ]];then
+			echo "clear expire backup files: $targetpath/mongo_all/${monArr[$j]}"
+			rm -rf $targetpath/mongo_all/${monArr[$j]}
+		fi
+	done
+fi
