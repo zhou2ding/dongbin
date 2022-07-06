@@ -1,4 +1,4 @@
-package msgqueue
+package mqbox
 
 type Consumer interface {
 	Name() string

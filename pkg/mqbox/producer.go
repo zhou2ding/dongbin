@@ -1,4 +1,4 @@
-package msgqueue
+package mqbox
 
 type Producer interface {
 	Name() string

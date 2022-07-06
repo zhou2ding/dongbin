@@ -2,7 +2,7 @@ package rabbitmq
 
 import (
 	"blog/pkg/cfg"
-	"blog/pkg/internal/msgqueue"
+	"blog/pkg/mqbox"
 	"github.com/streadway/amqp"
 	"sync"
 )
@@ -14,8 +14,8 @@ type RabbitMq struct {
 
 	conn *amqp.Connection
 
-	producers map[string]msgqueue.Producer
-	consumers map[string]msgqueue.Consumer
+	producers map[string]mqbox.Producer
+	consumers map[string]mqbox.Consumer
 
 	closeConnChan chan *amqp.Error //notify when connection close
 }
@@ -35,8 +35,8 @@ func (r *RabbitMq) Init() error {
 		host:          host,
 		conn:          nil,
 		closeConnChan: make(chan *amqp.Error, 1),
-		producers:     make(map[string]msgqueue.Producer),
-		consumers:     make(map[string]msgqueue.Consumer),
+		producers:     make(map[string]mqbox.Producer),
+		consumers:     make(map[string]mqbox.Consumer),
 	}
 	client = rabbitMq
 	return nil

@@ -1,8 +1,6 @@
 package mqbox
 
-import "blog/pkg/internal/msgqueue"
-
-type Message = msgqueue.Message
+type Msg = Message
 
 const (
 	MessageType = "MessageType"
@@ -17,7 +15,7 @@ const (
 	MqNameDemo = "demo_name"
 )
 
-func GetMqMessageType(message *msgqueue.Message) string {
+func GetMqMessageType(message *Message) string {
 	messageType, ok := message.Header[MessageType]
 	if !ok {
 		return ""
@@ -26,7 +24,7 @@ func GetMqMessageType(message *msgqueue.Message) string {
 	return messageType.(string)
 }
 
-func GetMqDeviceType(message *msgqueue.Message) int32 {
+func GetMqDeviceType(message *Message) int32 {
 	messageType, ok := message.Header[DeviceType]
 	if !ok {
 		return 0
