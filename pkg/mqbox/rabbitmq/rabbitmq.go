@@ -3,6 +3,7 @@ package rabbitmq
 import (
 	"blog/pkg/cfg"
 	"blog/pkg/mqbox"
+	"fmt"
 	"github.com/streadway/amqp"
 	"sync"
 )
@@ -52,4 +53,23 @@ func GetMqInstance() *MqInstance {
 	})
 
 	return instance
+}
+
+func (r *RabbitMq) Open() error {
+	if len(r.host) == 0 {
+		return fmt.Errorf("AMQP host len is 0")
+	}
+
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+
+	var err error
+	r.conn, err = amqp.Dial(r.host)
+	if err != nil {
+		return fmt.Errorf("dial amqp failed")
+	}
+	r.conn.NotifyClose(r.closeConnChan)
+
+
+	return nil
 }
