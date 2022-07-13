@@ -2,10 +2,13 @@ package rabbitmq
 
 import (
 	"blog/pkg/cfg"
+	"blog/pkg/logger"
 	"blog/pkg/mqbox"
 	"fmt"
 	"github.com/streadway/amqp"
+	"go.uber.org/zap"
 	"sync"
+	"time"
 )
 
 type RabbitMq struct {
@@ -70,6 +73,22 @@ func (r *RabbitMq) Open() error {
 	}
 	r.conn.NotifyClose(r.closeConnChan)
 
+	go r.keepalive()
 
 	return nil
+}
+
+func (r *RabbitMq) keepalive() {
+	select {
+	case err := <-r.closeConnChan:
+		if err != nil {
+			logger.GetLogger().Error("AMQP connection was closed with error",zap.Error(err))
+		} else {
+			logger.GetLogger().Error("AMQP connection was closed with no error")
+		}
+		maxRetry := 99999999
+		for i := 0; i < maxRetry; i++ {
+			time.Sleep(5*time.Second)
+		}
+	}
 }
