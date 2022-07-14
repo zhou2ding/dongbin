@@ -82,13 +82,39 @@ func (r *RabbitMq) keepalive() {
 	select {
 	case err := <-r.closeConnChan:
 		if err != nil {
-			logger.GetLogger().Error("AMQP connection was closed with error",zap.Error(err))
+			logger.GetLogger().Error("AMQP connection was closed with error", zap.Error(err))
 		} else {
 			logger.GetLogger().Error("AMQP connection was closed with no error")
 		}
 		maxRetry := 99999999
 		for i := 0; i < maxRetry; i++ {
-			time.Sleep(5*time.Second)
+			time.Sleep(5 * time.Second)
+			if err2 := r.reopen(); err2 != nil {
+				logger.GetLogger().Info("AMQP reconnect failed", zap.Int("retry times", i+1), zap.Error(err2))
+				continue
+			}
 		}
 	}
+}
+
+func (r *RabbitMq) reopen() error {
+	if len(r.host) == 0 {
+		logger.GetLogger().Info("AMQP host len is 0")
+		return fmt.Errorf("AMQP host len is 0")
+	}
+
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+
+	var err error
+	r.conn, err = amqp.Dial(r.host)
+	if err != nil {
+		logger.GetLogger().Info("dial amqp failed")
+		return err
+	}
+
+	r.closeConnChan = make(chan *amqp.Error, 1)
+	r.conn.NotifyClose(r.closeConnChan)
+
+	return nil
 }
