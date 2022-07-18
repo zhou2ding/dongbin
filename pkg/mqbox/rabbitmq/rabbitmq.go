@@ -93,6 +93,22 @@ func (r *RabbitMq) keepalive() {
 				logger.GetLogger().Info("AMQP reconnect failed", zap.Int("retry times", i+1), zap.Error(err2))
 				continue
 			}
+
+			for _, v := range r.producers {
+				e := v.Reopen(r.conn)
+				if e != nil {
+					logger.GetLogger().Info("producer reopen failed", zap.Error(e))
+				}
+			}
+
+			for _, v := range r.consumers {
+				e := v.Reopen(r.conn)
+				if e != nil {
+					logger.GetLogger().Info("consumer reopen failed", zap.Error(e))
+				} else {
+					v.StartConsume()
+				}
+			}
 		}
 	}
 }
