@@ -1,7 +1,7 @@
 package recover
 
 import (
-	"blog/pkg/logger"
+	"blog/pkg/l"
 	"fmt"
 	"github.com/gorilla/handlers"
 	"go.uber.org/zap"
@@ -17,6 +17,6 @@ func (r *recoverLogger) Println(fields ...interface{}) {
 }
 
 func NewRecoverHandler(printStack bool) func(h http.Handler) http.Handler {
-	l := recoverLogger{logger.GetLogger()}
+	l := recoverLogger{l.GetLogger()}
 	return handlers.RecoveryHandler(handlers.RecoveryLogger(&l), handlers.PrintRecoveryStack(printStack))
 }

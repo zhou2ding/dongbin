@@ -1,8 +1,8 @@
 package rabbitmq
 
 import (
-	"blog/pkg/cfg"
-	"blog/pkg/logger"
+	"blog/pkg/v"
+	"blog/pkg/l"
 	"blog/pkg/mqbox"
 	"fmt"
 	"github.com/streadway/amqp"
@@ -34,7 +34,7 @@ var (
 )
 
 func (r *RabbitMq) Init() error {
-	host := cfg.GetViper().GetString("amqp.host")
+	host := v.GetViper().GetString("amqp.host")
 	rabbitMq := &RabbitMq{
 		host:          host,
 		conn:          nil,
@@ -82,29 +82,29 @@ func (r *RabbitMq) keepalive() {
 	select {
 	case err := <-r.closeConnChan:
 		if err != nil {
-			logger.GetLogger().Error("AMQP connection was closed with error", zap.Error(err))
+			l.GetLogger().Error("AMQP connection was closed with error", zap.Error(err))
 		} else {
-			logger.GetLogger().Error("AMQP connection was closed with no error")
+			l.GetLogger().Error("AMQP connection was closed with no error")
 		}
 		maxRetry := 99999999
 		for i := 0; i < maxRetry; i++ {
 			time.Sleep(5 * time.Second)
 			if err2 := r.reopen(); err2 != nil {
-				logger.GetLogger().Info("AMQP reconnect failed", zap.Int("retry times", i+1), zap.Error(err2))
+				l.GetLogger().Info("AMQP reconnect failed", zap.Int("retry times", i+1), zap.Error(err2))
 				continue
 			}
 
 			for _, v := range r.producers {
 				e := v.Reopen(r.conn)
 				if e != nil {
-					logger.GetLogger().Info("producer reopen failed", zap.Error(e))
+					l.GetLogger().Info("producer reopen failed", zap.Error(e))
 				}
 			}
 
 			for _, v := range r.consumers {
 				e := v.Reopen(r.conn)
 				if e != nil {
-					logger.GetLogger().Info("consumer reopen failed", zap.Error(e))
+					l.GetLogger().Info("consumer reopen failed", zap.Error(e))
 				} else {
 					v.StartConsume()
 				}
@@ -115,7 +115,7 @@ func (r *RabbitMq) keepalive() {
 
 func (r *RabbitMq) reopen() error {
 	if len(r.host) == 0 {
-		logger.GetLogger().Info("AMQP host len is 0")
+		l.GetLogger().Info("AMQP host len is 0")
 		return fmt.Errorf("AMQP host len is 0")
 	}
 
@@ -125,7 +125,7 @@ func (r *RabbitMq) reopen() error {
 	var err error
 	r.conn, err = amqp.Dial(r.host)
 	if err != nil {
-		logger.GetLogger().Info("dial amqp failed")
+		l.GetLogger().Info("dial amqp failed")
 		return err
 	}
 

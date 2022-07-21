@@ -1,8 +1,8 @@
 package cache
 
 import (
-	"blog/pkg/cfg"
-	"blog/pkg/logger"
+	"blog/pkg/v"
+	"blog/pkg/l"
 )
 
 const (
@@ -22,8 +22,8 @@ type Cache interface {
 }
 
 func InitCache() error {
-	logger.GetLogger().Info("init cache")
-	cacheType := cfg.GetViper().GetString("cache.type")
+	l.GetLogger().Info("init cache")
+	cacheType := v.GetViper().GetString("cache.type")
 	switch cacheType {
 	case redisType:
 	case memoryType:

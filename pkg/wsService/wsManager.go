@@ -1,7 +1,7 @@
 package wsService
 
 import (
-	"blog/pkg/logger"
+	"blog/pkg/l"
 	"go.uber.org/zap"
 	"sync"
 )
@@ -36,7 +36,7 @@ func startWebSocket(bfDataChan chan []byte) {
 }
 
 func (c *wsClientManager) AddClient(client *WsClient) {
-	logger.GetLogger().Info("AddClient", zap.Any("client", client.Socket.RemoteAddr().String()))
+	l.GetLogger().Info("AddClient", zap.Any("client", client.Socket.RemoteAddr().String()))
 	c.register <- client
 
 	go client.read()
@@ -56,17 +56,17 @@ func (c *wsClientManager) start() {
 	for {
 		select {
 		case client := <-c.register:
-			logger.GetLogger().Info("wsClientManager receive one register")
+			l.GetLogger().Info("wsClientManager receive one register")
 			c.clients[client] = true
-			logger.GetLogger().Info("wsClientManager total size", zap.Int("length", len(c.clients)))
+			l.GetLogger().Info("wsClientManager total size", zap.Int("length", len(c.clients)))
 		case client := <-c.unregister:
-			logger.GetLogger().Info("wsClientManager receive one unregister")
+			l.GetLogger().Info("wsClientManager receive one unregister")
 			if _, ok := c.clients[client]; ok {
 				close(client.SendCh)
 				delete(c.clients, client)
 			}
 		case msgPkt := <-c.broadCast:
-			logger.GetLogger().Info("wsClientManager receive a message")
+			l.GetLogger().Info("wsClientManager receive a message")
 			for conn := range c.clients {
 				//peerId为空时，广播给所有客户端；否则单播给特定客户端
 				if msgPkt.PeerId != "" && msgPkt.PeerId != conn.PeerId {

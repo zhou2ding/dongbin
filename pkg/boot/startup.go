@@ -1,8 +1,8 @@
 package boot
 
 import (
-	"blog/pkg/cfg"
-	"blog/pkg/logger"
+	"blog/pkg/v"
+	"blog/pkg/l"
 	"blog/pkg/version"
 	"flag"
 	"fmt"
@@ -20,14 +20,14 @@ func StartUp(appName string) {
 	}
 	fmt.Println("configFile path is " + cfgFile)
 
-	cfg.InitViper()
-	if err := cfg.LoadConfig(cfgFile); err != nil {
+	v.InitViper()
+	if err := v.LoadConfig(cfgFile); err != nil {
 		panic(err)
 	}
 
-	if err := logger.InitLogger(appName); err != nil {
+	if err := l.InitLogger(appName); err != nil {
 		panic(err)
 	}
 
-	logger.GetLogger().Info("start service", zap.String("service", appName), zap.Any("version", version.GetVersionInfo()))
+	l.GetLogger().Info("start service", zap.String("service", appName), zap.Any("version", version.GetVersionInfo()))
 }

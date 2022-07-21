@@ -1,8 +1,8 @@
 package mqbox
 
 import (
-	"blog/pkg/cfg"
-	"blog/pkg/logger"
+	"blog/pkg/v"
+	"blog/pkg/l"
 	"github.com/pkg/errors"
 )
 
@@ -22,7 +22,7 @@ func GetMqBoxInstance() MqBox {
 }
 
 func InitMqBox() error {
-	mqType := cfg.GetViper().GetString("msg_queue.mq_type")
+	mqType := v.GetViper().GetString("msg_queue.mq_type")
 	if mqType == "rabbitmq" || mqType == "" {
 
 	} else if mqType == "lightmq" {
@@ -34,6 +34,6 @@ func InitMqBox() error {
 }
 
 func UnInitMqBox() {
-	logger.GetLogger().Info("UnInit MqBox")
+	l.GetLogger().Info("UnInit MqBox")
 	GetMqBoxInstance().Close()
 }

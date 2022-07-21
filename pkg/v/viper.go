@@ -1,4 +1,4 @@
-package cfg
+package v
 
 import (
 	"github.com/pkg/errors"

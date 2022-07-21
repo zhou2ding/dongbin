@@ -2,8 +2,8 @@ package jwtauth
 
 import (
 	"blog/pkg/auth"
-	"blog/pkg/cfg"
-	"blog/pkg/logger"
+	"blog/pkg/v"
+	"blog/pkg/l"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -46,22 +46,22 @@ type Option func(*options)
 
 func InitJWTAuth() (auth.Author, error) {
 	var opts []Option
-	if cfg.GetViper().GetInt("auth.expire") != 0 {
-		opts = append(opts, setExpired(cfg.GetViper().GetInt("auth.expire")))
+	if v.GetViper().GetInt("auth.expire") != 0 {
+		opts = append(opts, setExpired(v.GetViper().GetInt("auth.expire")))
 	}
 
-	if cfg.GetViper().GetString("auth.signing_key") != "" {
-		opts = append(opts, setSigningKey(cfg.GetViper().GetString("auth.signing_key")))
+	if v.GetViper().GetString("auth.signing_key") != "" {
+		opts = append(opts, setSigningKey(v.GetViper().GetString("auth.signing_key")))
 		opts = append(opts, setKeyFunc(func(t *jwt.Token) (interface{}, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, auth.ErrInvalidToken
 			}
-			return []byte(cfg.GetViper().GetString("auth.signing_key")), nil
+			return []byte(v.GetViper().GetString("auth.signing_key")), nil
 		}))
 	}
 
-	if cfg.GetViper().GetString("auth.signing_method") != "" {
-		switch cfg.GetViper().GetString("auth.signing_method") {
+	if v.GetViper().GetString("auth.signing_method") != "" {
+		switch v.GetViper().GetString("auth.signing_method") {
 		case "HS256":
 			opts = append(opts, setSigningMethod(jwt.SigningMethodHS256))
 		case "HS384":
@@ -103,7 +103,7 @@ func (j *JWTAuth) GenerateToken(userID string) (auth.Token, error) {
 
 	accessToken, err := token.SignedString(j.opts.signingKey)
 	if err != nil {
-		logger.GetLogger().Error("SignedString failed", zap.Error(err))
+		l.GetLogger().Error("SignedString failed", zap.Error(err))
 		return nil, err
 	}
 
@@ -111,7 +111,7 @@ func (j *JWTAuth) GenerateToken(userID string) (auth.Token, error) {
 		return s.Set(userID+"_"+strconv.FormatInt(now.UnixNano(), 10), expire, j.opts.expired)
 	})
 	if err != nil {
-		logger.GetLogger().Error("set store failed", zap.Error(err))
+		l.GetLogger().Error("set store failed", zap.Error(err))
 		return nil, err
 	}
 
@@ -162,7 +162,7 @@ func (j *JWTAuth) CheckToken(tokenStr string) (string, string, error) {
 			return err
 		}
 		if !exist {
-			logger.GetLogger().Error("CheckToken token not exist", zap.String("key", claim.Subject))
+			l.GetLogger().Error("CheckToken token not exist", zap.String("key", claim.Subject))
 			return auth.ErrInvalidToken
 		}
 
@@ -187,7 +187,7 @@ func (j *JWTAuth) CheckToken(tokenStr string) (string, string, error) {
 func (j *JWTAuth) CheckTokenWithUpdate(tokenStr string) (string, error) {
 	userName, token, err := j.CheckToken(tokenStr)
 	if err != nil {
-		logger.GetLogger().Error("CheckToken failed", zap.Error(err))
+		l.GetLogger().Error("CheckToken failed", zap.Error(err))
 		return "", err
 	}
 	if token == "" {
@@ -202,7 +202,7 @@ func (j *JWTAuth) CheckTokenWithUpdate(tokenStr string) (string, error) {
 		return ret
 	})
 	if err != nil {
-		logger.GetLogger().Error("update token failed", zap.Error(err))
+		l.GetLogger().Error("update token failed", zap.Error(err))
 		return "", err
 	}
 	return userName, nil
@@ -223,7 +223,7 @@ func (j *JWTAuth) parseToken(tokenStr string) (*jwt.StandardClaims, error) {
 	if token == nil || token.Claims == nil {
 		return nil, auth.ErrInvalidToken
 	}
-	logger.GetLogger().Info("parse token", zap.String("user name", token.Claims.(*jwt.StandardClaims).Subject))
+	l.GetLogger().Info("parse token", zap.String("user name", token.Claims.(*jwt.StandardClaims).Subject))
 	return token.Claims.(*jwt.StandardClaims), nil
 }
 

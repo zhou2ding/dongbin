@@ -1,7 +1,7 @@
-package logger
+package l
 
 import (
-	"blog/pkg/cfg"
+	"blog/pkg/v"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -18,23 +18,23 @@ const (
 func newLogger(appName string, opt ...zap.Option) (*zap.Logger, error) {
 	// log level
 	level := new(zapcore.Level)
-	if err := level.UnmarshalText([]byte(cfg.GetViper().GetString("log_level"))); err != nil {
+	if err := level.UnmarshalText([]byte(v.GetViper().GetString("log_level"))); err != nil {
 		return nil, err
 	}
 	// log path
-	path := cfg.GetViper().GetString("log.path")
+	path := v.GetViper().GetString("log.path")
 	// max log size
-	maxSize := cfg.GetViper().GetInt("log.max_size")
+	maxSize := v.GetViper().GetInt("log.max_size")
 	if maxSize == 0 {
 		maxSize = defaultMaxSize
 	}
 	// max log age
-	maxAge := cfg.GetViper().GetInt("log.max_age")
+	maxAge := v.GetViper().GetInt("log.max_age")
 	if maxAge == 0 {
 		maxAge = defaultMaxAge
 	}
 	// max backups
-	maxBackups := cfg.GetViper().GetInt("log.max_backups")
+	maxBackups := v.GetViper().GetInt("log.max_backups")
 	if maxBackups == 0 {
 		maxBackups = defaultMaxBackups
 	}
@@ -51,7 +51,7 @@ func newLogger(appName string, opt ...zap.Option) (*zap.Logger, error) {
 		}))
 	}
 	// writes to console or not
-	if cfg.GetViper().GetBool("log.console_enable") {
+	if v.GetViper().GetBool("log.console_enable") {
 		writeSyncer = append(writeSyncer, zapcore.AddSync(os.Stdout))
 	}
 

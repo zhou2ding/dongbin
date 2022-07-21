@@ -9,7 +9,7 @@ package license
 */
 import "C"
 import (
-	"blog/pkg/logger"
+	"blog/pkg/l"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -57,7 +57,7 @@ func (mgr *LicenseMgr) init(v *viper.Viper, logger *zap.Logger) error {
 }
 
 func (mgr *LicenseMgr) CheckValid() (bool, error) {
-	logger.GetLogger().Info("Check license windows...")
+	l.GetLogger().Info("Check license windows...")
 	handle, err := syscall.LoadDLL(mgr.libPath)
 	if err != nil {
 		return false, err
@@ -78,22 +78,22 @@ func (mgr *LicenseMgr) CheckValid() (bool, error) {
 	var cHandle uint32
 	ret, _, lastErr := login.Call(feature, uintptr(unsafe.Pointer(vcstr)), uintptr(unsafe.Pointer(&cHandle)))
 	if lastErr != nil {
-		logger.GetLogger().Info("login.Call lastErr", zap.String("lastErr", lastErr.Error()))
+		l.GetLogger().Info("login.Call lastErr", zap.String("lastErr", lastErr.Error()))
 	}
 	if ret != 0 {
-		logger.GetLogger().Warn("login.Call failed")
+		l.GetLogger().Warn("login.Call failed")
 		return false, nil
 	}
 
 	ret, _, lastErr = logout.Call(uintptr(cHandle))
 	if lastErr != nil {
-		logger.GetLogger().Info("logout.Call lastErr", zap.String("lastErr", lastErr.Error()))
+		l.GetLogger().Info("logout.Call lastErr", zap.String("lastErr", lastErr.Error()))
 	}
 	if ret != 0 {
-		logger.GetLogger().Warn("logout.Call failed")
+		l.GetLogger().Warn("logout.Call failed")
 	}
 
-	logger.GetLogger().Info("License is valid")
+	l.GetLogger().Info("License is valid")
 
 	return true, nil
 }

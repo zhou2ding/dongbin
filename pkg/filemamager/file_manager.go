@@ -1,8 +1,8 @@
 package filemanager
 
 import (
-	"blog/pkg/cfg"
-	"blog/pkg/logger"
+	"blog/pkg/v"
+	"blog/pkg/l"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"io/ioutil"
@@ -28,8 +28,8 @@ func GetFileManager() *FileManager {
 }
 
 func (c *FileManager) Init() error {
-	logger.GetLogger().Info("Init FileManager")
-	dir := cfg.GetViper().GetString("storage.homedir")
+	l.GetLogger().Info("Init FileManager")
+	dir := v.GetViper().GetString("storage.homedir")
 	if dir == "" {
 		return errors.New("no home directory in configuration")
 	}
@@ -40,19 +40,19 @@ func (c *FileManager) Init() error {
 	if err := pathExistsOrCreate(c.file.homeDir); err != nil {
 		return err
 	}
-	logger.GetLogger().Debug("init home dir", zap.String("homeDir", c.file.homeDir))
+	l.GetLogger().Debug("init home dir", zap.String("homeDir", c.file.homeDir))
 	return nil
 }
 
 func (c *FileManager) Read(path string) ([]byte, error) {
-	logger.GetLogger().Info("Read file start", zap.String("file name", path))
+	l.GetLogger().Info("Read file start", zap.String("file name", path))
 	content, err := ioutil.ReadFile(c.file.homeDir + autoDir + strings.TrimPrefix(path, "/"))
 	if err != nil {
 		if os.IsNotExist(err) {
-			logger.GetLogger().Warn("ReadFile find no result")
+			l.GetLogger().Warn("ReadFile find no result")
 			return nil, nil
 		}
-		logger.GetLogger().Error("ReadFile error", zap.Error(err))
+		l.GetLogger().Error("ReadFile error", zap.Error(err))
 		return nil, err
 	}
 
@@ -60,7 +60,7 @@ func (c *FileManager) Read(path string) ([]byte, error) {
 }
 
 func (c *FileManager) Write(mode int, fileName string, createAt int64, fileData []byte) error {
-	logger.GetLogger().Info("Write file start")
+	l.GetLogger().Info("Write file start")
 	write := writeValue{
 		Mode:     mode,
 		Dir:      c.file.homeDir + autoDir,
@@ -70,7 +70,7 @@ func (c *FileManager) Write(mode int, fileName string, createAt int64, fileData 
 	switch write.Mode {
 	case AutoPath:
 		if err := c.file.writeWithoutPath(&write, fileData); err != nil {
-			logger.GetLogger().Error("writeWithoutPath failed", zap.Error(err))
+			l.GetLogger().Error("writeWithoutPath failed", zap.Error(err))
 			return err
 		}
 	}

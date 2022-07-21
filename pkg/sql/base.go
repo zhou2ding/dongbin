@@ -1,7 +1,7 @@
 package sql
 
 import (
-	"blog/pkg/cfg"
+	"blog/pkg/v"
 	"gorm.io/gorm"
 	"sync"
 )
@@ -28,7 +28,7 @@ func (d *DataBase) GetDB() *gorm.DB {
 }
 
 func InitSQL() error {
-	dbType := cfg.GetViper().GetString("database.type")
+	dbType := v.GetViper().GetString("database.type")
 	var err error
 	if dbType == "mysql" {
 		db, err = initMySQL()

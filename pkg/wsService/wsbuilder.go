@@ -1,7 +1,7 @@
 package wsService
 
 import (
-	"blog/pkg/logger"
+	"blog/pkg/l"
 	"github.com/gorilla/websocket"
 )
 
@@ -46,11 +46,11 @@ func (c *WsClient) write() {
 		select {
 		case message, ok := <-c.SendCh:
 			if !ok {
-				logger.GetLogger().Warn("sendChan is closed")
+				l.GetLogger().Warn("sendChan is closed")
 				c.Socket.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
-			logger.GetLogger().Debug("send a message to websocket")
+			l.GetLogger().Debug("send a message to websocket")
 			c.Socket.WriteMessage(websocket.TextMessage, message)
 		}
 	}

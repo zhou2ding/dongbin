@@ -1,8 +1,8 @@
 package boot
 
 import (
-	"blog/pkg/cfg"
-	"blog/pkg/logger"
+	"blog/pkg/v"
+	"blog/pkg/l"
 	recover2 "blog/pkg/recover"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -46,7 +46,7 @@ func ListenAndServe(p *RunParam) {
 		}()
 	}
 
-	port := cfg.GetViper().Sub(p.AppName).GetInt("port")
+	port := v.GetViper().Sub(p.AppName).GetInt("port")
 	if port <= 0 {
 		return
 	}
@@ -60,12 +60,12 @@ func ListenAndServe(p *RunParam) {
 	defer server.Close()
 
 	go func(s *http.Server) {
-		logger.GetLogger().Info("serving http", zap.Int("port", port))
+		l.GetLogger().Info("serving http", zap.Int("port", port))
 		if err := s.ListenAndServe(); err != nil {
 			if errors.Is(err, http.ErrServerClosed) {
-				logger.GetLogger().Info("http Sever is closed")
+				l.GetLogger().Info("http Sever is closed")
 			} else {
-				logger.GetLogger().Fatal("can not start http server", zap.Error(err))
+				l.GetLogger().Fatal("can not start http server", zap.Error(err))
 			}
 		}
 	}(&server)
@@ -74,10 +74,10 @@ func ListenAndServe(p *RunParam) {
 	signal.Notify(signalCh, os.Interrupt, syscall.SIGTERM)
 	select {
 	case <-signalCh:
-		logger.GetLogger().Info("receive interrupt signal")
+		l.GetLogger().Info("receive interrupt signal")
 	}
 
-	logger.GetLogger().Info("http service has stopped", zap.String("service", p.AppName))
+	l.GetLogger().Info("http service has stopped", zap.String("service", p.AppName))
 }
 
 func newRouter() *mux.Router {
