@@ -1,9 +1,9 @@
 package rabbitmq
 
 import (
-	"blog/pkg/v"
 	"blog/pkg/l"
 	"blog/pkg/mqbox"
+	"blog/pkg/v"
 	"fmt"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
@@ -76,6 +76,25 @@ func (r *RabbitMq) Open() error {
 	go r.keepalive()
 
 	return nil
+}
+
+func (r *RabbitMq) Close() {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+
+	for _, p := range r.producers {
+		p.Close()
+	}
+	r.producers = make(map[string]mqbox.Producer)
+
+	for _, p := range r.consumers {
+		p.Close()
+	}
+	r.consumers = make(map[string]mqbox.Consumer)
+
+	if r.conn != nil {
+		_ = r.conn.Close()
+	}
 }
 
 func (r *RabbitMq) keepalive() {
