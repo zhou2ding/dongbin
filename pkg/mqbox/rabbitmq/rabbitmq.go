@@ -97,6 +97,20 @@ func (r *RabbitMq) Close() {
 	}
 }
 
+func (r *RabbitMq) StartMqProducer(topic string) error {
+	ex := &mqbox.ExchangeBinds{
+		Exchange: mqbox.DefaultExchange("exch."+topic, mqbox.ExchangeFanout),
+		Bindings: &mqbox.Binding{
+			RouteKey: "router." + topic,
+			Queues:   mqbox.DefaultQueue("queue." + topic),
+		},
+	}
+
+	newRabbitProducer(topic, ex)
+
+	return nil
+}
+
 func (r *RabbitMq) keepalive() {
 	select {
 	case err := <-r.closeConnChan:
