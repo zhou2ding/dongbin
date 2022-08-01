@@ -24,3 +24,7 @@ func newRabbitProducer(name string, eb *mqbox.ExchangeBinds) *RabbitProducer {
 		status:        mqbox.StateClosed,
 	}
 }
+
+func (r *RabbitProducer) Name() string {
+	return r.name
+}
