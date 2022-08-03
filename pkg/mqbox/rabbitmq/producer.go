@@ -7,6 +7,7 @@ import (
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
 	"sync"
+	"time"
 )
 
 type RabbitProducer struct {
@@ -62,6 +63,10 @@ func (r *RabbitProducer) Open(mq interface{}) error {
 	return nil
 }
 
+func (r *RabbitProducer) Reopen(mq interface{}) error {
+	return nil
+}
+
 func (r *RabbitProducer) applyExchangeBinds(ch *amqp.Channel, binds *mqbox.ExchangeBinds) error {
 	if ch == nil || binds == nil {
 		return errors.New("channel or binds is nil")
@@ -78,5 +83,34 @@ func (r *RabbitProducer) applyExchangeBinds(ch *amqp.Channel, binds *mqbox.Excha
 }
 
 func (r *RabbitProducer) keepalive() {
+	select {
+	case err := <-r.close:
+		if err != nil {
+			l.GetLogger().Error("producer channel is closed with error", zap.String("name", r.name), zap.Error(err))
+		} else {
+			l.GetLogger().Info("producer channel is closed with error", zap.String("name", r.name))
+		}
 
+		r.mtx.Lock()
+		r.status = mqbox.StateReopening
+		r.mtx.Unlock()
+
+		maxRetry := 99999999
+		for i := 0; i < maxRetry; i++ {
+			time.Sleep(8 * time.Second)
+			if r.conn == nil {
+				l.GetLogger().Error("producer connection is nil")
+				return
+			}
+			if r.status == mqbox.StateOpened {
+				l.GetLogger().Info("producer is opened")
+				break
+			}
+			if err := r.Reopen(r.conn); err != nil {
+				l.GetLogger().Info("producer reopen failed", zap.String("name", r.name), zap.Int("times", i+1), zap.Error(err))
+				continue
+			}
+			l.GetLogger().Info("producer(%s) reopen done", zap.String("name", r.name), zap.Int("times", i+1))
+		}
+	}
 }
