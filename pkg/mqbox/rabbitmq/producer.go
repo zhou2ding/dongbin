@@ -64,6 +64,34 @@ func (r *RabbitProducer) Open(mq interface{}) error {
 }
 
 func (r *RabbitProducer) Reopen(mq interface{}) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	if r.status == mqbox.StateOpened {
+		return nil
+	}
+
+	var ok bool
+	r.conn, ok = mq.(*amqp.Connection)
+	if !ok {
+		return errors.New("reopen mq params error")
+	}
+
+	channel, err := r.conn.Channel()
+	if err != nil {
+		l.GetLogger().Error("reopen channel failed")
+		return err
+	}
+	r.close = make(chan *amqp.Error, 1)
+	channel.NotifyClose(r.close)
+	r.ch = channel
+
+	if err = r.applyExchangeBinds(r.ch, r.exchangeBinds); err != nil {
+		_ = r.ch.Close()
+		return err
+	}
+
+	r.status = mqbox.StateOpened
+	l.GetLogger().Info("rabbit producer reopen success", zap.String("name", r.name))
 	return nil
 }
 
