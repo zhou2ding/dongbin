@@ -16,7 +16,7 @@ type RabbitProducer struct {
 	conn          *amqp.Connection
 	ch            *amqp.Channel
 	exchangeBinds *mqbox.ExchangeBinds
-	close         chan *amqp.Error
+	closeCh       chan *amqp.Error
 	status        uint8
 }
 
@@ -24,7 +24,7 @@ func newRabbitProducer(name string, eb *mqbox.ExchangeBinds) *RabbitProducer {
 	return &RabbitProducer{
 		name:          name,
 		exchangeBinds: eb,
-		close:         make(chan *amqp.Error, 1),
+		closeCh:       make(chan *amqp.Error, 1),
 		status:        mqbox.StateClosed,
 	}
 }
@@ -54,7 +54,7 @@ func (r *RabbitProducer) Open(mq interface{}) error {
 		_ = r.ch.Close()
 		return err
 	}
-	r.ch.NotifyClose(r.close)
+	r.ch.NotifyClose(r.closeCh)
 
 	go r.keepalive()
 
@@ -81,8 +81,8 @@ func (r *RabbitProducer) Reopen(mq interface{}) error {
 		l.GetLogger().Error("reopen channel failed")
 		return err
 	}
-	r.close = make(chan *amqp.Error, 1)
-	channel.NotifyClose(r.close)
+	r.closeCh = make(chan *amqp.Error, 1)
+	channel.NotifyClose(r.closeCh)
 	r.ch = channel
 
 	if err = r.applyExchangeBinds(r.ch, r.exchangeBinds); err != nil {
@@ -93,6 +93,13 @@ func (r *RabbitProducer) Reopen(mq interface{}) error {
 	r.status = mqbox.StateOpened
 	l.GetLogger().Info("rabbit producer reopen success", zap.String("name", r.name))
 	return nil
+}
+
+func (r *RabbitProducer) Close() {
+	r.mtx.Lock()
+	r.ch.Close()
+	close(r.closeCh)
+	r.mtx.Unlock()
 }
 
 func (r *RabbitProducer) applyExchangeBinds(ch *amqp.Channel, binds *mqbox.ExchangeBinds) error {
@@ -112,7 +119,7 @@ func (r *RabbitProducer) applyExchangeBinds(ch *amqp.Channel, binds *mqbox.Excha
 
 func (r *RabbitProducer) keepalive() {
 	select {
-	case err := <-r.close:
+	case err := <-r.closeCh:
 		if err != nil {
 			l.GetLogger().Error("producer channel is closed with error", zap.String("name", r.name), zap.Error(err))
 		} else {
