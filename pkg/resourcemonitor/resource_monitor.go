@@ -97,9 +97,9 @@ func (r *ResourceMonitor) Monitor() {
 						fmt.Println(err)
 					}
 					if memory != nil {
-						if 79+idx > 90 {
+						if 70+idx > 90 {
 							// 超出Z列，从AA列开始
-							excel.SetCellValue(sheet1, fmt.Sprintf("%c%c%d", 65, 53+idx, line), memory.RSS/(1<<20))
+							excel.SetCellValue(sheet1, fmt.Sprintf("%c%c%d", 65, 57+idx, line), memory.RSS/(1<<20))
 						} else {
 							excel.SetCellValue(sheet1, fmt.Sprintf("%c%d", 83+idx, line), memory.RSS/(1<<20))
 						}
