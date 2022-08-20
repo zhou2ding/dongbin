@@ -102,6 +102,25 @@ func (r *RabbitProducer) Close() {
 	r.mtx.Unlock()
 }
 
+func (r *RabbitProducer) Publish(msg *mqbox.Msg) error {
+	if r.conn == nil || r.ch == nil {
+		return errors.New("conn or channel is nil")
+	}
+	if r.exchangeBinds == nil || r.exchangeBinds.Exchange == nil || r.exchangeBinds.Bindings == nil {
+		return errors.New("exchangeBinds is nil")
+	}
+
+	data := amqp.Publishing{
+		Headers:         msg.Header,
+		ContentEncoding: "application/json",
+		DeliveryMode:    mqbox.Persistent,
+		Priority:        uint8(5),
+		Timestamp:       time.Now(),
+		Body:            msg.Body,
+	}
+	return r.ch.Publish(r.exchangeBinds.Exchange.Name, r.exchangeBinds.Bindings.RouteKey, false, false, data)
+}
+
 func (r *RabbitProducer) applyExchangeBinds(ch *amqp.Channel, binds *mqbox.ExchangeBinds) error {
 	if ch == nil || binds == nil {
 		return errors.New("channel or binds is nil")
