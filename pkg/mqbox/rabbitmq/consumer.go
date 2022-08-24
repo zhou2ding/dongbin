@@ -21,6 +21,7 @@ type RabbitConsumer struct {
 	closeCh       chan *amqp.Error
 	stopChan      chan struct{}
 	status        uint8
+	callback      chan<- *mqbox.Message
 }
 
 func newRabbitConsumer(topic, name string, eb *mqbox.ExchangeBinds) *RabbitConsumer {
@@ -69,6 +70,51 @@ func (r *RabbitConsumer) Open(mq interface{}) error {
 	r.status = mqbox.StateOpened
 	l.GetLogger().Info("rabbitmq open success", zap.String("name", r.name))
 	return nil
+}
+
+func (r *RabbitConsumer) SetQos(prefetch int) {
+	r.prefetch = prefetch
+}
+
+func (r *RabbitConsumer) SetMsgCallback(callback chan<- *mqbox.Msg) {
+	r.mtx.Lock()
+	r.callback = callback
+	r.mtx.Unlock()
+}
+
+func (r *RabbitConsumer) StartConsume() error {
+	if r.exchangeBinds == nil || r.exchangeBinds.Bindings == nil || r.exchangeBinds.Bindings.Queues == nil {
+		return errors.New("exchangeBinds is nil")
+	}
+
+	opt := mqbox.DefaultConsumeOption()
+	delivery, err := r.ch.Consume(r.exchangeBinds.Bindings.Queues.Name, "", opt.AutoAck, opt.Exclusive, opt.NoLocal, opt.NoWait, opt.Args)
+	if err != nil {
+		return err
+	}
+	if delivery == nil {
+		return errors.New("consume no result")
+	}
+	go r.deliver(delivery)
+	return nil
+}
+
+func (r *RabbitConsumer) deliver(delivery <-chan amqp.Delivery) {
+	for {
+		select {
+		case d := <-delivery:
+			if r.callback != nil && d.Body != nil {
+				msg := mqbox.Msg{
+					Header: d.Headers,
+					Body:   d.Body,
+				}
+				r.callback <- &msg
+			}
+		case <-r.stopChan:
+			l.GetLogger().Info("receive stop signal, stop deliver")
+			return
+		}
+	}
 }
 
 func (r *RabbitConsumer) Close() {
