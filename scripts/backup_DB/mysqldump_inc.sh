@@ -15,9 +15,9 @@ targetpath=${targetpath%*/}
 
 host='127.0.0.1'
 port='10008'
-dbname='tsmp'
+dbname='zdb'
 user='root'
-password='root2021@tsmp_isv_cn'
+password='root2021@zdb_2ding_cn'
 nowMonth=$(date "+%Y%m")
 nowDay=$(date "+%Y%m%d")
 

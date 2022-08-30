@@ -17,9 +17,9 @@ targetpath=${targetpath%*/}
 
 host='127.0.0.1'
 port='10005'
-dbname='tsmp'
-user='tsmpadmin'
-password='tsmpadmin2021_isv_cn'
+dbname='zdb'
+user='zdbadmin'
+password='zdbadmin2021_2ding_cn'
 authdb='admin'
 nowDay=$(date "+%Y%m%d")
 nowMonth=$(date "+%Y%m")
@@ -28,7 +28,7 @@ function getTimeStap() {
 	local p=$1
 	if [ $p = "mongo_all" ];then
 		d1=$(date "+%Y%m")
-		for f in `ls $targetpath/$p/$d1/tsmp`;do
+		for f in `ls $targetpath/$p/$d1/zdb`;do
 			if [[ $f =~ "timestap" ]];then
 				ret=$f
 				echo $ret
@@ -37,7 +37,7 @@ function getTimeStap() {
 		done
 	elif [ $p = "mongo_inc" ];then
 		d1=$2
-		for f in `ls $targetpath/$p/$d1/tsmp`;do
+		for f in `ls $targetpath/$p/$d1/zdb`;do
 			if [[ $f =~ "timestap" ]];then
 				ret=$f
 				echo $ret
@@ -92,7 +92,7 @@ if [[ $isFirst = "false" ]];then
 fi
 
 #判断当月的全量备份中，日期文件和当天是否一致，一致则退出
-allBackupDir=$targetpath/mongo_all/$nowMonth/tsmp
+allBackupDir=$targetpath/mongo_all/$nowMonth/zdb
 if [[ -d $allBackupDir ]];then
 	successFile=`ls $allBackupDir | grep "success_"`
 	allBackupidx=`expr index $successFile "_"`
@@ -116,7 +116,7 @@ if [ $beginTime -ne 0 ];then
 		if [ $? -eq 0 ]
 		then
 			nowTime=$((`date -d "$nowStr" "+%s"`*1000+`date -d "$nowStr" "+%N"`/1000000))	#毫秒级时间戳
-			touch $targetpath/mongo_inc/${nowDay}/tsmp/timestap_${nowTime}
+			touch $targetpath/mongo_inc/${nowDay}/zdb/timestap_${nowTime}
 		else
 			rm -rf $targetpath/mongo_inc/${nowDay}
 		fi

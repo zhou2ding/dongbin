@@ -13,10 +13,10 @@ sleep 3
 
 mongo --port 10119 <<EOF
 use admin
-db.createUser({user:"root",pwd:"root2021_tsmp_isv_cn",roles:["root"]})
-db.auth("root","root2021_tsmp_isv_cn")
-db.createUser({user:"admin",pwd:"admin2021_tsmp_isv_cn",roles:[{role:"userAdminAnyDatabase",db:"admin"}]})
-db.createUser({user:"tsmpadmin",pwd:"tsmpadmin2021_isv_cn",roles:[{role:"readWriteAnyDatabase",db:"admin"}]})
+db.createUser({user:"root",pwd:"root2021_zdb_2ding_cn",roles:["root"]})
+db.auth("root","root2021_zdb_2ding_cn")
+db.createUser({user:"admin",pwd:"admin2021_zdb_2ding_cn",roles:[{role:"userAdminAnyDatabase",db:"admin"}]})
+db.createUser({user:"zdbadmin",pwd:"zdbadmin2021_2ding_cn",roles:[{role:"readWriteAnyDatabase",db:"admin"}]})
 exit
 EOF
 
@@ -31,9 +31,9 @@ sleep 3
 
 mongo --port 10219 <<EOF
 use admin
-db.createUser({user:"root",pwd:"root2021_tsmp_isv_cn",roles:["root"]})
-db.auth("root","root2021_tsmp_isv_cn")
-db.createUser({user:"admin",pwd:"admin2021_tsmp_isv_cn",roles:[{role:"userAdminAnyDatabase",db:"admin"}]})
-db.createUser({user:"tsmpadmin",pwd:"tsmpadmin2021_isv_cn",roles:[{role:"readWriteAnyDatabase",db:"admin"}]})
+db.createUser({user:"root",pwd:"root2021_zdb_2ding_cn",roles:["root"]})
+db.auth("root","root2021_zdb_2ding_cn")
+db.createUser({user:"admin",pwd:"admin2021_zdb_2ding_cn",roles:[{role:"userAdminAnyDatabase",db:"admin"}]})
+db.createUser({user:"zdbadmin",pwd:"zdbadmin2021_2ding_cn",roles:[{role:"readWriteAnyDatabase",db:"admin"}]})
 exit
 EOF

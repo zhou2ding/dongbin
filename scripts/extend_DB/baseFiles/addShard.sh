@@ -13,16 +13,16 @@ sleep 5
 
 mongo --host SPECIFIED_IP --port SPECIFIED_PORT <<EOF
 use admin
-db.createUser({user:"root",pwd:"root2021_tsmp_isv_cn",roles:["root"]})
-db.auth("root","root2021_tsmp_isv_cn")
-db.createUser({user:"admin",pwd:"admin2021_tsmp_isv_cn",roles:[{role:"userAdminAnyDatabase",db:"admin"}]})
-db.createUser({user:"tsmpadmin",pwd:"tsmpadmin2021_isv_cn",roles:[{role:"readWriteAnyDatabase",db:"admin"}]})
+db.createUser({user:"root",pwd:"root2021_zdb_2ding_cn",roles:["root"]})
+db.auth("root","root2021_zdb_2ding_cn")
+db.createUser({user:"admin",pwd:"admin2021_zdb_2ding_cn",roles:[{role:"userAdminAnyDatabase",db:"admin"}]})
+db.createUser({user:"zdbadmin",pwd:"zdbadmin2021_2ding_cn",roles:[{role:"readWriteAnyDatabase",db:"admin"}]})
 exit
 EOF
 
 mongo --port 10001 <<EOF
 use admin
-db.auth("admin","admin2021_tsmp_isv_cn")
+db.auth("admin","admin2021_zdb_2ding_cn")
 sh.addShard("SHARD_NAME/SPECIFIED_IP:SPECIFIED_PORT")
 exit
 EOF

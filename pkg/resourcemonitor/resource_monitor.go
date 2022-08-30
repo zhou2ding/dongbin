@@ -109,7 +109,7 @@ func (r *ResourceMonitor) Monitor() {
 			line++
 		}
 	}
-	_ = excel.SaveAs("/home/user/gaowei/tsmp_resources/top" + time.Now().Format("20060102-15") + ".xlsx")
+	_ = excel.SaveAs("/home/user/gaowei/zdb_resources/top" + time.Now().Format("20060102-15") + ".xlsx")
 }
 
 func getCpu() (float64, error) {

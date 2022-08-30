@@ -11,7 +11,7 @@
 * 恢复方法：
 
   * `MySQL`：手动执行`mysqlrestore.sh`，需要在脚本后跟一个参数，以指定恢复的源文件(`*.sql`或`mysql-bin.*`)
-  * `MongoDB`：手动执行`mongorestore.sh`，需要在脚本后跟一个参数，以指定恢复文件所在的目录（备份方案中的目录结构中的`tsmp`）
+  * `MongoDB`：手动执行`mongorestore.sh`，需要在脚本后跟一个参数，以指定恢复文件所在的目录（备份方案中的目录结构中的`zdb`）
 
 * 恢复步骤：
 
@@ -26,7 +26,7 @@
 
      - `MongoDB`：进入`mongo_inc`目录，执行恢复脚本，选择全量日期之后所有的增量备份进行恢复
 
-       > 全量日期：备份方案中的目录结构中的`mongo_all/月份/tsmp`文件夹中`success_日期`的文件名中的日期
+       > 全量日期：备份方案中的目录结构中的`mongo_all/月份/zdb`文件夹中`success_日期`的文件名中的日期
 
      - `MySQL`：进入`mysql_inc`目录，进入最新日期的目录，手动执行`mongorestore.sh`，选择其中所有的`binlog`进行恢复
 

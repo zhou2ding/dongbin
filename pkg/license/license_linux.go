@@ -11,9 +11,9 @@ package license
 */
 import "C"
 import (
+	"blog/pkg/l"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-	"isvtsmp/pkg/traceutil"
 	"unsafe"
 )
 
@@ -40,7 +40,7 @@ func GetLicenseMgrInstance() *LicenseMgr {
 }
 
 func (mgr *LicenseMgr) CheckValid() (bool, error) {
-	traceutil.GetLogger().Info("Check license linux...")
+	l.GetLogger().Info("Check license linux...")
 	vcStr := C.CString(vendorCode)
 	defer C.free(unsafe.Pointer(vcStr))
 
@@ -51,7 +51,7 @@ func (mgr *LicenseMgr) CheckValid() (bool, error) {
 		(*C.uint)(unsafe.Pointer(&cHandle)),
 	)
 	if status != 0 {
-		traceutil.GetLogger().Info("c_login failed")
+		l.GetLogger().Info("c_login failed")
 		return false, nil
 	}
 
@@ -59,10 +59,10 @@ func (mgr *LicenseMgr) CheckValid() (bool, error) {
 		C.uint(cHandle),
 	)
 	if status != 0 {
-		traceutil.GetLogger().Info("c_logout failed")
+		l.GetLogger().Info("c_logout failed")
 	}
 
-	traceutil.GetLogger().Info("License is valid")
+	l.GetLogger().Info("License is valid")
 
 	return true, nil
 }

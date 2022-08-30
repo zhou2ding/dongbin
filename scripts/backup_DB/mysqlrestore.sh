@@ -1,9 +1,9 @@
 #!/bin/bash
 host='127.0.0.1'
 port='10008'
-dbname='tsmp'
+dbname='zdb'
 user='root'
-password='root2021@tsmp_isv_cn'
+password='root2021@zdb_2ding_cn'
 authdb='admin'
 
 sourcefile=$1

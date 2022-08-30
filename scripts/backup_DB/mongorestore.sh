@@ -1,9 +1,9 @@
 #!/bin/bash
 host='127.0.0.1'
 port='10005'
-dbname='tsmp'
-user='tsmpadmin'
-password='tsmpadmin2021_isv_cn'
+dbname='zdb'
+user='zdbadmin'
+password='zdbadmin2021_2ding_cn'
 authdb='admin'
 
 restoreFunc() {

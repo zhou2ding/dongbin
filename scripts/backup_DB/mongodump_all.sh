@@ -14,9 +14,9 @@ fi
 targetpath=${targetpath%*/}
 host='127.0.0.1'
 port='10005'
-dbname='tsmp'
-user='tsmpadmin'
-password='tsmpadmin2021_isv_cn'
+dbname='zdb'
+user='zdbadmin'
+password='zdbadmin2021_2ding_cn'
 authdb='admin'
 nowMonth=$(date "+%Y%m")
 nowDay=$(date "+%Y%m%d")
@@ -58,7 +58,7 @@ function traverseDir() {
 	done
 }
 #检查当月有没有备份
-traverseDir $targetpath/mongo_all/${nowMonth}/tsmp
+traverseDir $targetpath/mongo_all/${nowMonth}/zdb
 if [ $exist == 19 ]
 then
 	echo "MongoDB BackUp has done in this month"
@@ -74,13 +74,13 @@ fi
 mongodump -h ${host}:${port} -d $dbname -o ${targetpath}/mongo_all/${nowMonth} -u $user -p $password --authenticationDatabase $authdb
 if [ $? -eq 0 ]
 then
-	if [ -d $targetpath/mongo_all/${nowMonth}/tsmp ]
+	if [ -d $targetpath/mongo_all/${nowMonth}/zdb ]
 	then
 		echo "MongoDB BackUp Successful"
-		touch $targetpath/mongo_all/${nowMonth}/tsmp/success_${nowDay}
+		touch $targetpath/mongo_all/${nowMonth}/zdb/success_${nowDay}
 		nowStr=`date "+%Y-%m-%d %H:%M:%S"`
 		nowTime=$((`date -d "$nowStr" "+%s"`*1000+`date -d "$nowStr" "+%N"`/1000000))	#毫秒级时间戳
-		touch $targetpath/mongo_all/${nowMonth}/tsmp/timestap_${nowTime}
+		touch $targetpath/mongo_all/${nowMonth}/zdb/timestap_${nowTime}
 	else
 		echo "MongoDB BackUp Fail"
 	fi

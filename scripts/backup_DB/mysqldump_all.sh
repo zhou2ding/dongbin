@@ -15,9 +15,9 @@ targetpath=${targetpath%*/}
 
 host='127.0.0.1'
 port='10008'
-dbname='tsmp'
+dbname='zdb'
 user='root'
-password='root2021@tsmp_isv_cn'
+password='root2021@zdb_2ding_cn'
 nowMonth=$(date "+%Y%m")
 nowDay=$(date "+%Y%m%d")
 
@@ -26,7 +26,7 @@ function traverseDir() {
 	for elem in `ls $1`
 	do
 		dof=$1"/"$elem
-		if [[ -f $dof && $dof =~ "tsmp.sql" ]]
+		if [[ -f $dof && $dof =~ "zdb.sql" ]]
 		then
 			exist=`expr $exist + 1`
 		fi
@@ -51,7 +51,7 @@ fi
 
 #刷新binlog后执行备份
 mysqladmin -h$host -P$port -u$user -p$password flush-logs
-mysqldump -h$host -P$port -u$user -p$password $dbname > $targetpath/mysql_all/${nowMonth}/tsmp.sql
+mysqldump -h$host -P$port -u$user -p$password $dbname > $targetpath/mysql_all/${nowMonth}/zdb.sql
 
 if [ $? -eq 0 ]
 then
