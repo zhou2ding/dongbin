@@ -16,19 +16,19 @@ type sessionGuarder interface {
 	OnTimeout()
 }
 
-type sessionOperateType int
+type action int
 
 const (
-	sessionRegister sessionOperateType = iota
-	sessionUpdate
-	sessionUpdateAndClear
-	sessionUnregister
+	register action = iota
+	update
+	updateAndClear
+	unregister
 )
 
 type sessionOperateMessage struct {
-	guarder     sessionGuarder
-	operateType sessionOperateType
-	operateTime int64
+	guarder sessionGuarder
+	action  action
+	time    int64
 }
 
 type sessionGuardCtx struct {
@@ -36,56 +36,56 @@ type sessionGuardCtx struct {
 	lastOptTime int64
 }
 
-var gRPCSessionManager = &rpcSessionManager{
+var gSessionMgr = &sessionMgr{
 	guardContexts: make(map[int]*sessionGuardCtx),
 	messageCh:     make(chan *sessionOperateMessage, 10),
 }
 
-func GetRPCSessionMgrInstance() *rpcSessionManager {
-	return gRPCSessionManager
+func GetSessionMgr() *sessionMgr {
+	return gSessionMgr
 }
 
-type rpcSessionManager struct {
+type sessionMgr struct {
 	guardContexts map[int]*sessionGuardCtx
 	messageCh     chan *sessionOperateMessage
 }
 
-func (c *rpcSessionManager) Start(aliveTime int64) {
+func (c *sessionMgr) Start(aliveTime int64) {
 	go c.keepSessionGuarded(aliveTime)
 }
 
-func (c *rpcSessionManager) register(guarder sessionGuarder, operateTime int64) {
+func (c *sessionMgr) register(guarder sessionGuarder, operateTime int64) {
 	c.messageCh <- &sessionOperateMessage{
-		guarder:     guarder,
-		operateType: sessionRegister,
-		operateTime: operateTime,
+		guarder: guarder,
+		action:  register,
+		time:    operateTime,
 	}
 }
 
-func (c *rpcSessionManager) unregister(guarder sessionGuarder) {
+func (c *sessionMgr) unregister(guarder sessionGuarder) {
 	c.messageCh <- &sessionOperateMessage{
-		guarder:     guarder,
-		operateType: sessionUnregister,
+		guarder: guarder,
+		action:  unregister,
 	}
 }
 
-func (c *rpcSessionManager) update(guarder sessionGuarder, operateTime int64) {
+func (c *sessionMgr) update(guarder sessionGuarder, operateTime int64) {
 	c.messageCh <- &sessionOperateMessage{
-		guarder:     guarder,
-		operateType: sessionUpdate,
-		operateTime: operateTime,
+		guarder: guarder,
+		action:  update,
+		time:    operateTime,
 	}
 }
 
-func (c *rpcSessionManager) updateAndDeleteInvalid(guarder sessionGuarder, operateTime int64) {
+func (c *sessionMgr) updateAndDeleteInvalid(guarder sessionGuarder, operateTime int64) {
 	c.messageCh <- &sessionOperateMessage{
-		guarder:     guarder,
-		operateType: sessionUpdateAndClear,
-		operateTime: operateTime,
+		guarder: guarder,
+		action:  updateAndClear,
+		time:    operateTime,
 	}
 }
 
-func (c *rpcSessionManager) keepSessionGuarded(aliveTime int64) {
+func (c *sessionMgr) keepSessionGuarded(aliveTime int64) {
 	ticker := time.NewTicker(time.Duration(SessionCheckTimeCell) * time.Second)
 	defer ticker.Stop()
 
@@ -106,10 +106,10 @@ func (c *rpcSessionManager) keepSessionGuarded(aliveTime int64) {
 	}
 }
 
-func (c *rpcSessionManager) parseSessionOperateMessage(msg *sessionOperateMessage) {
-	switch msg.operateType {
-	case sessionRegister:
-		l.GetLogger().Info("rpcSessionManager register ", zap.Int("session Id", msg.guarder.GetSessionId()))
+func (c *sessionMgr) parseSessionOperateMessage(msg *sessionOperateMessage) {
+	switch msg.action {
+	case register:
+		l.GetLogger().Info("sessionMgr register ", zap.Int("session Id", msg.guarder.GetSessionId()))
 		_, ok := c.guardContexts[msg.guarder.GetSessionId()]
 		if ok {
 			l.GetLogger().Warn("repeat register sessionMonitor!")
@@ -117,32 +117,32 @@ func (c *rpcSessionManager) parseSessionOperateMessage(msg *sessionOperateMessag
 		}
 		c.guardContexts[msg.guarder.GetSessionId()] = &sessionGuardCtx{
 			guarder:     msg.guarder,
-			lastOptTime: msg.operateTime,
+			lastOptTime: msg.time,
 		}
-	case sessionUpdate:
+	case update:
 		fallthrough
-	case sessionUpdateAndClear:
-		l.GetLogger().Info("rpcSessionManager update", zap.Int("session Id", msg.guarder.GetSessionId()))
+	case updateAndClear:
+		l.GetLogger().Info("sessionMgr update", zap.Int("session Id", msg.guarder.GetSessionId()))
 		_, ok := c.guardContexts[msg.guarder.GetSessionId()]
 		if ok {
-			c.guardContexts[msg.guarder.GetSessionId()].lastOptTime = msg.operateTime
+			c.guardContexts[msg.guarder.GetSessionId()].lastOptTime = msg.time
 		} else {
 			l.GetLogger().Warn("update non-existent sessionGuarder!")
 			return
 		}
 
-		if msg.operateType == sessionUpdateAndClear {
+		if msg.action == updateAndClear {
 			//相同的用户，新会话建立时，若有老会话存在，删除老会话
 			for sessionId, ctx := range c.guardContexts {
 				if ctx.guarder.Id() == msg.guarder.Id() && sessionId != msg.guarder.GetSessionId() {
-					l.GetLogger().Info("rpcSessionManager delete old sessionGuarder", zap.Int("session Id", sessionId))
+					l.GetLogger().Info("sessionMgr delete old sessionGuarder", zap.Int("session Id", sessionId))
 					ctx.guarder.OnTimeout()
 					delete(c.guardContexts, sessionId)
 				}
 			}
 		}
-	case sessionUnregister:
-		l.GetLogger().Info("rpcSessionManager unregister ", zap.Int("session Id", msg.guarder.GetSessionId()))
+	case unregister:
+		l.GetLogger().Info("sessionMgr unregister ", zap.Int("session Id", msg.guarder.GetSessionId()))
 		_, ok := c.guardContexts[msg.guarder.GetSessionId()]
 		if ok {
 			delete(c.guardContexts, msg.guarder.GetSessionId())

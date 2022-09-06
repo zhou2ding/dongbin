@@ -96,7 +96,7 @@ func (c *rpcSession) SendMessage(id int, value json.RawMessage) {
 
 func (c *rpcSession) Open() chan [][]byte {
 	//向RPCSessionManager注册
-	GetRPCSessionMgrInstance().register(c, time.Now().Unix())
+	GetSessionMgr().register(c, time.Now().Unix())
 
 	c.user.setStatus(NotLogin)
 	c.sendChan = make(chan [][]byte, RpcResponseBufferMax)
@@ -106,7 +106,7 @@ func (c *rpcSession) Open() chan [][]byte {
 func (c *rpcSession) Close() {
 	if c.doClose() == true {
 		//从RPCSessionManager中注销
-		GetRPCSessionMgrInstance().unregister(c)
+		GetSessionMgr().unregister(c)
 	}
 }
 
@@ -149,7 +149,7 @@ func (c *rpcSession) doLogin(jsonReq []byte, binaryReq []byte) error {
 
 	//二次登录完成后，更新下时间
 	if c.user.getStatus() == SecondLogin {
-		GetRPCSessionMgrInstance().updateAndDeleteInvalid(c, time.Now().Unix())
+		GetSessionMgr().updateAndDeleteInvalid(c, time.Now().Unix())
 
 		l.GetLogger().Info("RPCSession doLogin set ListenState", zap.Int("Id", c.id), zap.Int("session Id", c.GetSessionId()))
 		//此处由于项目需要ip这个字段，所以binaryReq里会装客户端的ip
