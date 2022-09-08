@@ -13,10 +13,10 @@ then
 fi
 targetpath=${targetpath%*/}
 host='127.0.0.1'
-port='10005'
-dbname='zdb'
-user='zdbadmin'
-password='zdbadmin2021_2ding_cn'
+port='27017'
+dbname='demo'
+user='demo'
+password='demo'
 authdb='admin'
 nowMonth=$(date "+%Y%m")
 nowDay=$(date "+%Y%m%d")
@@ -100,7 +100,9 @@ if [[ $backupFileCnt -gt $backupSaveMonths ]];then
 		diff=`expr ${#monArr[@]} - $backupSaveMonths`
 		if [[ $j -lt $diff ]];then
 			echo "clear expire backup files: $targetpath/mongo_all/${monArr[$j]}"
+			echo "clear expire backup files: $targetpath/mongo_inc/${monArr[$j]}"
 			rm -rf $targetpath/mongo_all/${monArr[$j]}
+			rm -rf $targetpath/mongo_inc/${monArr[$j]}*
 		fi
 	done
 fi

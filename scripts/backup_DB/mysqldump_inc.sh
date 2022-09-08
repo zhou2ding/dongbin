@@ -13,11 +13,8 @@ then
 fi
 targetpath=${targetpath%*/}
 
-host='127.0.0.1'
-port='10008'
-dbname='zdb'
-user='root'
-password='root2021@zdb_2ding_cn'
+user='demo'
+password='demo'
 nowMonth=$(date "+%Y%m")
 nowDay=$(date "+%Y%m%d")
 
@@ -56,7 +53,7 @@ if [[ -d $allBackupDir ]];then
 fi
 
 #判断当天是否有新增的binlog，没有则退出脚本
-mysqladmin -h$host -P$port -u$user -p$password flush-logs #先刷新
+mysqladmin -u$user -p$password flush-logs #先刷新
 binlogs=$(cat /var/log/mysql/mysql-bin.index)
 arr=(${binlogs})
 last=$((${#arr[@]}-1))
@@ -88,22 +85,3 @@ for binlog in ${arr[@]};do
 		cp $binlog $targetpath/mysql_inc/${nowDay}
 	fi
 done
-
-#清理过期备份
-backupFileCnt=`ls $targetpath/mongo_all -l |grep "^d"|wc -l`
-if [[ $backupFileCnt -gt $backupSaveMonths ]];then
-	monArr=()
-	i=0
-	for mon in `ls $targetpath/mongo_all`;do
-		monArr[$i]=$mon
-		i=`expr $i + 1`
-	done
-
-	for ((j=0;j<${#monArr[@]};j++));do
-		diff=`expr ${#monArr[@]} - $backupSaveMonths`
-		if [[ $j -lt $diff ]];then
-			echo "clear expire backup files: $targetpath/mongo_all/${monArr[$j]}"
-			rm -rf $targetpath/mongo_all/${monArr[$j]}
-		fi
-	done
-fi

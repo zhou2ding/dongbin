@@ -13,11 +13,9 @@ then
 fi
 targetpath=${targetpath%*/}
 
-host='127.0.0.1'
-port='10008'
-dbname='zdb'
-user='root'
-password='root2021@zdb_2ding_cn'
+dbname='demo'
+user='demo'
+password='demo'
 nowMonth=$(date "+%Y%m")
 nowDay=$(date "+%Y%m%d")
 
@@ -50,8 +48,8 @@ then
 fi
 
 #刷新binlog后执行备份
-mysqladmin -h$host -P$port -u$user -p$password flush-logs
-mysqldump -h$host -P$port -u$user -p$password $dbname > $targetpath/mysql_all/${nowMonth}/zdb.sql
+mysqladmin -u$user -p$password flush-logs
+mysqldump -u$user -p$password $dbname > $targetpath/mysql_all/${nowMonth}/zdb.sql
 
 if [ $? -eq 0 ]
 then
@@ -73,11 +71,11 @@ else
 fi
 
 #清理过期备份
-backupFileCnt=`ls $targetpath/mongo_all -l |grep "^d"|wc -l`
+backupFileCnt=`ls $targetpath/mysql_all -l |grep "^d"|wc -l`
 if [[ $backupFileCnt -gt $backupSaveMonths ]];then
 	monArr=()
 	i=0
-	for mon in `ls $targetpath/mongo_all`;do
+	for mon in `ls $targetpath/mysql_all`;do
 		monArr[$i]=$mon
 		i=`expr $i + 1`
 	done
@@ -85,8 +83,10 @@ if [[ $backupFileCnt -gt $backupSaveMonths ]];then
 	for ((j=0;j<${#monArr[@]};j++));do
 		diff=`expr ${#monArr[@]} - $backupSaveMonths`
 		if [[ $j -lt $diff ]];then
-			echo "clear expire backup files: $targetpath/mongo_all/${monArr[$j]}"
-			rm -rf $targetpath/mongo_all/${monArr[$j]}
+			echo "clear expire backup files: $targetpath/mysql_all/${monArr[$j]}"
+			echo "clear expire backup files: $targetpath/mysql_inc/${monArr[$j]}"
+			rm -rf $targetpath/mysql_all/${monArr[$j]}
+			rm -rf $targetpath/mysql_inc/${monArr[$j]}*
 		fi
 	done
 fi
