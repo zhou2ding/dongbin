@@ -1,4 +1,4 @@
-package wsService
+package websock
 
 import (
 	"blog/pkg/l"
