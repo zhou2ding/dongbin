@@ -27,14 +27,14 @@ func GetRegisterFunc() func() chan []byte {
 func (c *WsClient) read() {
 	defer func() {
 		gWsClientManager.unregister <- c
-		c.Socket.Close()
+		_ = c.Socket.Close()
 	}()
 
 	for {
 		_, _, err := c.Socket.ReadMessage()
 		if err != nil {
 			gWsClientManager.unregister <- c
-			c.Socket.Close()
+			_ = c.Socket.Close()
 			break
 		}
 	}
@@ -47,11 +47,11 @@ func (c *WsClient) write() {
 		case message, ok := <-c.SendCh:
 			if !ok {
 				l.GetLogger().Warn("sendChan is closed")
-				c.Socket.WriteMessage(websocket.CloseMessage, []byte{})
+				_ = c.Socket.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 			l.GetLogger().Debug("send a message to websocket")
-			c.Socket.WriteMessage(websocket.TextMessage, message)
+			_ = c.Socket.WriteMessage(websocket.TextMessage, message)
 		}
 	}
 }
