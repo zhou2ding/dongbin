@@ -25,4 +25,3 @@ type Author interface {
 	Release() error
 	GetUserFromToken(token string) (string, error)
 }
-
