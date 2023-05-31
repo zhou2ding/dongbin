@@ -1,8 +1,9 @@
 module blog
 
-go 1.19
+go 1.20
 
 require (
+	github.com/brianvoe/gofakeit/v6 v6.19.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.11.0
 	go.uber.org/zap v1.21.0
@@ -10,7 +11,6 @@ require (
 )
 
 require (
-	github.com/brianvoe/gofakeit/v6 v6.19.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
