@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/brianvoe/gofakeit/v6 v6.19.0
+	github.com/gogf/gf v1.16.9
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.11.0
 	go.uber.org/zap v1.21.0
