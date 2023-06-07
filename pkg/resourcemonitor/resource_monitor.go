@@ -41,6 +41,39 @@ var (
 	}
 )
 
+type SysInfo struct {
+	CPU    []*CPUInfo  `json:"cpu"`
+	Memory *MemoryInfo `json:"memory"`
+	Disks  []*DiskInfo `json:"disk"`
+}
+
+type CPUInfo struct {
+	CPU       int32   `json:"cpu"`
+	Cores     int32   `json:"cores"`
+	ModelName string  `json:"modelName"`
+	Usage     float64 `json:"usage"`
+}
+
+type MemoryInfo struct {
+	Virtual *Mem `json:"virtual"`
+	Swap    *Mem `json:"swap"`
+}
+
+type Mem struct {
+	Total       uint64  `json:"total"`
+	Used        uint64  `json:"used"`
+	Free        uint64  `json:"free"`
+	UsedPercent float64 `json:"usedPercent"`
+}
+
+type DiskInfo struct {
+	Name      string `json:"name"`
+	MountPath string `json:"mountPath"`
+	Total     uint64 `json:"total"`
+	Used      uint64 `json:"used"`
+	Available uint64 `json:"available"`
+}
+
 type ResourceMonitor struct {
 	Times int
 }
