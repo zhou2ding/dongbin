@@ -145,12 +145,12 @@ func (r *ResourceMonitor) Monitor() {
 	_ = excel.SaveAs("/home/user/gaowei/zdb_resources/top" + time.Now().Format("20060102-15") + ".xlsx")
 }
 
-func getCpu() (float64, error) {
-	rates, err := cpu.Percent(time.Second*1, false)
+func getCpu() ([]float64, error) {
+	usage, err := cpu.Percent(0, true)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return rates[0], nil
+	return usage, nil
 }
 
 func getMem() (uint64, error) {
