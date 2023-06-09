@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/process"
 	"time"
@@ -159,4 +160,22 @@ func getMem() (uint64, error) {
 		return 0, err
 	}
 	return vmem.Used / (1 << 20), err
+}
+
+func getDiskUsage() ([]*disk.UsageStat, error) {
+	partitions, err := disk.Partitions(true)
+	if err != nil {
+		return nil, err
+	}
+
+	var stats []*disk.UsageStat
+	for _, partition := range partitions {
+		stat, err := disk.Usage(partition.Mountpoint)
+		if err != nil {
+			return nil, err
+		}
+		stats = append(stats, stat)
+	}
+
+	return stats, nil
 }
