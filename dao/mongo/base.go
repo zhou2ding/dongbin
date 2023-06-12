@@ -1,10 +1,23 @@
 package mongo
 
+import (
+	"blog/dao"
+	"sync"
+)
+
 type Mongo struct {
 }
 
-func NewMongo() *Mongo {
-	return &Mongo{}
+var (
+	mongoInstance *Mongo
+	once          sync.Once
+)
+
+func GetDB() dao.Repository {
+	once.Do(func() {
+		mongoInstance = &Mongo{}
+	})
+	return mongoInstance
 }
 
 func (m *Mongo) Start() error {
