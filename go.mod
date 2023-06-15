@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/brianvoe/gofakeit/v6 v6.19.0
+	github.com/eclipse/paho.mqtt.golang v1.4.2
 	github.com/gogf/gf v1.16.9
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.11.0
@@ -25,6 +26,7 @@ require (
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.1 // indirect
 	github.com/xdg-go/stringprep v1.0.3 // indirect
+	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
