@@ -1,6 +1,9 @@
 package tools
 
-import "testing"
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
 
 func TestGetDigitOfStr(t *testing.T) {
 	cases := []struct {
@@ -15,9 +18,7 @@ func TestGetDigitOfStr(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			got := GetDigitOfStr(c.input)
-			if got != c.want {
-				t.Errorf("want: %v, but got: %v", c.want, got)
-			}
+			assert.Equal(t, got, c.want)
 		})
 	}
 }
@@ -34,11 +35,13 @@ func TestSplitCharAndNum(t *testing.T) {
 		{"case3", "123", "", 123},
 		{"case4", "gw-5", "gw-", 5},
 	}
+	ass := assert.New(t)
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			got1, got2 := SplitCharAndNum(c.input)
 			if got1 != c.want1 || got2 != c.want2 {
-				t.Errorf("want1: %v, wang2: %v, but go1t: %v, got2:%v\n", c.want1, c.want2, got1, got2)
+				ass.Equal(got1, c.want1)
+				ass.Equal(got2, c.want2)
 			}
 		})
 	}
