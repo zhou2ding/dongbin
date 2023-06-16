@@ -23,21 +23,38 @@ func GetDigitOfStr(s string) string {
 }
 
 func SplitCharAndNum(s string) (string, int) {
+	var (
+		chars  string
+		numStr string
+	)
 	start := 0
-	for _, c := range s {
+	for i, c := range s {
 		if unicode.IsDigit(c) {
+			start = i
 			break
 		}
-		start++
 	}
 
 	end := start
-	for _, c := range s[start:] {
-		if !unicode.IsDigit(c) {
+	for i, c := range s[start:] {
+		if unicode.IsDigit(c) {
+			numStr += string(c)
+		} else {
 			break
 		}
-		end++
+		end = start + i
 	}
-	num, _ := strconv.ParseInt(s[start:end], 10, 64)
-	return s[:start] + s[end:], int(num)
+
+	if start == 0 && end == 0 {
+		return s, 0
+	}
+
+	if end < len(s)-1 {
+		chars = s[:start] + s[end+1:]
+	} else {
+		chars = s[:start]
+	}
+
+	num, _ := strconv.ParseInt(numStr, 10, 64)
+	return chars, int(num)
 }
