@@ -7,16 +7,18 @@ import (
 	"time"
 )
 
-type Client struct {
-	recvCh chan interface{}
-	sendCh chan interface{}
-	cli    mqtt.Client
-}
-
 func newMqttClient(username, password, clientId string, topics []string) *Client {
 	recvCh := make(chan interface{}, 10000)
 	var publishHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {
-		recvCh <- message
+		msg := &Message{
+			Duplicate: message.Duplicate(),
+			Qos:       message.Qos(),
+			Retained:  message.Retained(),
+			Topic:     message.Topic(),
+			MessageID: message.MessageID(),
+			Data:      message.Payload(),
+		}
+		recvCh <- msg
 	}
 	var connHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 		for _, topic := range topics {
