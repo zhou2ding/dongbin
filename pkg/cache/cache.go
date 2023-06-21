@@ -1,8 +1,8 @@
 package cache
 
 import (
-	"blog/pkg/v"
 	"blog/pkg/l"
+	"blog/pkg/v"
 )
 
 const (
@@ -22,7 +22,7 @@ type Cache interface {
 }
 
 func InitCache() error {
-	l.GetLogger().Info("init cache")
+	l.Logger().Info("init cache")
 	cacheType := v.GetViper().GetString("cache.type")
 	switch cacheType {
 	case redisType:

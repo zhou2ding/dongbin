@@ -77,7 +77,7 @@ func (t *topicManager) register(topicName string, subscriber subscriber) (int, e
 	tp, ok := t.topics[topicName]
 	if !ok {
 		//启动相关服务组件的订阅功能
-		l.GetLogger().Info("topicManager register start", zap.String("topicName", topicName), zap.Int("Id", subscriber.Id()))
+		l.Logger().Info("topicManager register start", zap.String("topicName", topicName), zap.Int("Id", subscriber.Id()))
 		err = rpcservice.GetRPCServiceMgr().StartTopicListen(topicName)
 		if err == nil {
 			tp = &topic{}
@@ -85,7 +85,7 @@ func (t *topicManager) register(topicName string, subscriber subscriber) (int, e
 			t.topics[topicName] = tp
 		}
 	} else {
-		l.GetLogger().Info("topicManager register add subscriber", zap.String("topicName", topicName), zap.Int("Id", subscriber.Id()))
+		l.Logger().Info("topicManager register add subscriber", zap.String("topicName", topicName), zap.Int("Id", subscriber.Id()))
 		notifyId = tp.add(subscriber)
 	}
 
@@ -99,10 +99,10 @@ func (t *topicManager) unregister(topicName string, subscriber subscriber) error
 	tp, ok := t.topics[topicName]
 	if ok {
 		tp.remove(subscriber)
-		l.GetLogger().Info("topicManager unregister remove", zap.String("topicName", topicName), zap.Int("Id", subscriber.Id()))
+		l.Logger().Info("topicManager unregister remove", zap.String("topicName", topicName), zap.Int("Id", subscriber.Id()))
 		if tp.size() == 0 {
 			//已没有订阅者，关闭相关服务组件的订阅功能
-			l.GetLogger().Info("topicManager unregister stop topic", zap.String("topicName", topicName))
+			l.Logger().Info("topicManager unregister stop topic", zap.String("topicName", topicName))
 			rpcservice.GetRPCServiceMgr().StopTopicListen(topicName)
 
 			delete(t.topics, topicName)
@@ -118,10 +118,10 @@ func (t *topicManager) remove(subscriber subscriber) {
 	defer t.mutex.Unlock()
 	for topicName, tp := range t.topics {
 		tp.remove(subscriber)
-		l.GetLogger().Info("topicManager remove remove", zap.String("topicName", topicName), zap.Int("Id", subscriber.Id()))
+		l.Logger().Info("topicManager remove remove", zap.String("topicName", topicName), zap.Int("Id", subscriber.Id()))
 		if tp.size() == 0 {
 			//已没有订阅者，关闭相关服务组件的订阅功能
-			l.GetLogger().Info("topicManager remove stop topic", zap.String("topicName", topicName))
+			l.Logger().Info("topicManager remove stop topic", zap.String("topicName", topicName))
 			rpcservice.GetRPCServiceMgr().StopTopicListen(topicName)
 
 			delete(t.topics, topicName)
@@ -139,7 +139,7 @@ func (t *topicManager) checkValid() {
 			tp.checkValid()
 			if tp.size() == 0 {
 				//已没有订阅者，关闭相关服务组件的订阅功能
-				l.GetLogger().Info("topicManager checkValid stop topic", zap.String("topicName", topicName))
+				l.Logger().Info("topicManager checkValid stop topic", zap.String("topicName", topicName))
 				rpcservice.GetRPCServiceMgr().StopTopicListen(topicName)
 
 				delete(t.topics, topicName)

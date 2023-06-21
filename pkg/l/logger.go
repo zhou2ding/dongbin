@@ -12,6 +12,6 @@ func InitLogger(prefix string) error {
 	return err
 }
 
-func GetLogger() *zap.Logger {
+func Logger() *zap.Logger {
 	return gLogger
 }

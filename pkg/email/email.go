@@ -26,12 +26,12 @@ func SendMail(mail *Email) error {
 
 	conn, err := tls.Dial("tcp", mail.Host, nil)
 	if err != nil {
-		l.GetLogger().Error("sendMail Dial failed", zap.Error(err))
+		l.Logger().Error("sendMail Dial failed", zap.Error(err))
 		return err
 	}
 	cli, err := smtp.NewClient(conn, mail.Host)
 	if err != nil {
-		l.GetLogger().Error("sendMail get client failed", zap.Error(err))
+		l.Logger().Error("sendMail get client failed", zap.Error(err))
 		return err
 	}
 	defer cli.Close()
@@ -39,27 +39,27 @@ func SendMail(mail *Email) error {
 	if ok, _ := cli.Extension("AUTH"); ok && mail.Auth != nil {
 		// 服务器如果支持AUTH扩展，则进行校验
 		if err = cli.Auth(mail.Auth); err != nil {
-			l.GetLogger().Error("sendMail Auth failed", zap.Error(err))
+			l.Logger().Error("sendMail Auth failed", zap.Error(err))
 			return err
 		}
 	}
 
 	if err = cli.Mail(mail.From); err != nil {
-		l.GetLogger().Error("sendMail send MAIL command failed", zap.Error(err))
+		l.Logger().Error("sendMail send MAIL command failed", zap.Error(err))
 		return err
 	}
 
 	sendList := strings.Split(mail.To, ",")
 	for _, addr := range sendList {
 		if err = cli.Rcpt(addr); err != nil {
-			l.GetLogger().Error("sendMail send RCPT command failed", zap.Error(err))
+			l.Logger().Error("sendMail send RCPT command failed", zap.Error(err))
 			return err
 		}
 	}
 
 	w, err := cli.Data()
 	if err != nil {
-		l.GetLogger().Error("sendMail send DATA command failed", zap.Error(err))
+		l.Logger().Error("sendMail send DATA command failed", zap.Error(err))
 		return err
 	}
 	defer w.Close()
@@ -78,7 +78,7 @@ func SendMail(mail *Email) error {
 	msg = append(msg, mail.Data...)
 	_, err = w.Write(msg)
 	if err != nil {
-		l.GetLogger().Error("sendMail write to network failed", zap.Error(err))
+		l.Logger().Error("sendMail write to network failed", zap.Error(err))
 		return err
 	}
 

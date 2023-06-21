@@ -24,7 +24,7 @@ func newMqttClient(username, password, clientId string, topics []string) *Client
 		for _, topic := range topics {
 			token := client.Subscribe(topic, 1, publishHandler)
 			if token.Error() != nil || !token.WaitTimeout(15*time.Second) {
-				l.GetLogger().Error("subscribe topic error", zap.String("topic", topic), zap.Error(token.Error()))
+				l.Logger().Error("subscribe topic error", zap.String("topic", topic), zap.Error(token.Error()))
 			}
 		}
 	}
@@ -49,9 +49,9 @@ func newMqttClient(username, password, clientId string, topics []string) *Client
 	}
 	token := cli.cli.Connect()
 	if token.Error() != nil || !token.WaitTimeout(15*time.Second) {
-		l.GetLogger().Error("connect to mqtt server error", zap.Error(token.Error()))
+		l.Logger().Error("connect to mqtt server error", zap.Error(token.Error()))
 		return nil
 	}
-	l.GetLogger().Info("connect to mqtt server!", zap.String("client id", clientId))
+	l.Logger().Info("connect to mqtt server!", zap.String("client id", clientId))
 	return cli
 }

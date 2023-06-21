@@ -46,7 +46,7 @@ func (r *RabbitProducer) Open(mq interface{}) error {
 	var err error
 	r.ch, err = r.conn.Channel()
 	if err != nil {
-		l.GetLogger().Error("open channel error")
+		l.Logger().Error("open channel error")
 		return err
 	}
 
@@ -59,7 +59,7 @@ func (r *RabbitProducer) Open(mq interface{}) error {
 	go r.keepalive()
 
 	r.status = mqbox.StateOpened
-	l.GetLogger().Info("rabbitmq open success", zap.String("name", r.name))
+	l.Logger().Info("rabbitmq open success", zap.String("name", r.name))
 	return nil
 }
 
@@ -78,7 +78,7 @@ func (r *RabbitProducer) Reopen(mq interface{}) error {
 
 	channel, err := r.conn.Channel()
 	if err != nil {
-		l.GetLogger().Error("reopen channel failed")
+		l.Logger().Error("reopen channel failed")
 		return err
 	}
 	r.closeCh = make(chan *amqp.Error, 1)
@@ -91,7 +91,7 @@ func (r *RabbitProducer) Reopen(mq interface{}) error {
 	}
 
 	r.status = mqbox.StateOpened
-	l.GetLogger().Info("rabbit producer reopen success", zap.String("name", r.name))
+	l.Logger().Info("rabbit producer reopen success", zap.String("name", r.name))
 	return nil
 }
 
@@ -140,9 +140,9 @@ func (r *RabbitProducer) keepalive() {
 	select {
 	case err := <-r.closeCh:
 		if err != nil {
-			l.GetLogger().Error("producer channel is closed with error", zap.String("name", r.name), zap.Error(err))
+			l.Logger().Error("producer channel is closed with error", zap.String("name", r.name), zap.Error(err))
 		} else {
-			l.GetLogger().Info("producer channel is closed with error", zap.String("name", r.name))
+			l.Logger().Info("producer channel is closed with error", zap.String("name", r.name))
 		}
 
 		r.mtx.Lock()
@@ -153,18 +153,18 @@ func (r *RabbitProducer) keepalive() {
 		for i := 0; i < maxRetry; i++ {
 			time.Sleep(8 * time.Second)
 			if r.conn == nil {
-				l.GetLogger().Error("producer connection is nil")
+				l.Logger().Error("producer connection is nil")
 				return
 			}
 			if r.status == mqbox.StateOpened {
-				l.GetLogger().Info("producer is opened")
+				l.Logger().Info("producer is opened")
 				break
 			}
 			if err := r.Reopen(r.conn); err != nil {
-				l.GetLogger().Info("producer reopen failed", zap.String("name", r.name), zap.Int("times", i+1), zap.Error(err))
+				l.Logger().Info("producer reopen failed", zap.String("name", r.name), zap.Int("times", i+1), zap.Error(err))
 				continue
 			}
-			l.GetLogger().Info("producer(%s) reopen done", zap.String("name", r.name), zap.Int("times", i+1))
+			l.Logger().Info("producer(%s) reopen done", zap.String("name", r.name), zap.Int("times", i+1))
 		}
 	}
 }

@@ -1,8 +1,8 @@
 package mqbox
 
 import (
-	"blog/pkg/v"
 	"blog/pkg/l"
+	"blog/pkg/v"
 	"github.com/pkg/errors"
 )
 
@@ -34,6 +34,6 @@ func InitMqBox() error {
 }
 
 func UnInitMqBox() {
-	l.GetLogger().Info("UnInit MqBox")
+	l.Logger().Info("UnInit MqBox")
 	GetMqBoxInstance().Close()
 }

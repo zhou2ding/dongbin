@@ -72,7 +72,7 @@ func (c *rpcSession) GetSessionId() int {
 }
 
 func (c *rpcSession) OnTimeout() {
-	l.GetLogger().Warn("RPCSession Timeout!!!", zap.Int("session Id", c.GetSessionId()))
+	l.Logger().Warn("RPCSession Timeout!!!", zap.Int("session Id", c.GetSessionId()))
 	c.doClose()
 }
 
@@ -120,7 +120,7 @@ func (c *rpcSession) OnMessage(jsonReq []byte, binaryReq []byte) error {
 	//登录后的请求并发处理
 	var jReq jsonRequest
 	if err := json.Unmarshal(jsonReq, &jReq); err != nil {
-		l.GetLogger().Warn("RPCSession OnMessage error: ", zap.Error(err), zap.Int("session Id", c.GetSessionId()))
+		l.Logger().Warn("RPCSession OnMessage error: ", zap.Error(err), zap.Int("session Id", c.GetSessionId()))
 		return err
 	}
 
@@ -144,14 +144,14 @@ func (c *rpcSession) doLogin(jsonReq []byte, binaryReq []byte) error {
 
 	if c.user.getStatus() == FirstLogin {
 		c.id = id
-		l.GetLogger().Info("RPCSession GetIdentifyInfo", zap.Int("id", c.id), zap.Int("session Id", c.GetSessionId()))
+		l.Logger().Info("RPCSession GetIdentifyInfo", zap.Int("id", c.id), zap.Int("session Id", c.GetSessionId()))
 	}
 
 	//二次登录完成后，更新下时间
 	if c.user.getStatus() == SecondLogin {
 		GetSessionMgr().updateAndDeleteInvalid(c, time.Now().Unix())
 
-		l.GetLogger().Info("RPCSession doLogin set ListenState", zap.Int("Id", c.id), zap.Int("session Id", c.GetSessionId()))
+		l.Logger().Info("RPCSession doLogin set ListenState", zap.Int("Id", c.id), zap.Int("session Id", c.GetSessionId()))
 		//此处由于项目需要ip这个字段，所以binaryReq里会装客户端的ip
 		c.sendSessionState(true, binaryReq)
 	}
@@ -160,7 +160,7 @@ func (c *rpcSession) doLogin(jsonReq []byte, binaryReq []byte) error {
 
 	err = c.doSend(respPackets)
 	if err != nil {
-		l.GetLogger().Info("RPCSession doLogin doSend:", zap.Error(err), zap.Int("session Id", c.GetSessionId()))
+		l.Logger().Info("RPCSession doLogin doSend:", zap.Error(err), zap.Int("session Id", c.GetSessionId()))
 	}
 
 	return nil
@@ -180,7 +180,7 @@ func (c *rpcSession) doExecute(jReq *jsonRequest, binaryReq []byte) {
 	var binaryResp []byte
 	var isLogout = false
 
-	l.GetLogger().Info("RPCSession doExecute", zap.String("key", jReq.Key), zap.Int("session Id", c.GetSessionId()))
+	l.Logger().Info("RPCSession doExecute", zap.String("key", jReq.Key), zap.Int("session Id", c.GetSessionId()))
 
 	//过滤订阅流程
 
@@ -191,10 +191,10 @@ func (c *rpcSession) doExecute(jReq *jsonRequest, binaryReq []byte) {
 	bt := time.Now()
 	err := c.doSend(respPackets)
 	if err != nil {
-		l.GetLogger().Info("RPCSession doExecute doSend", zap.Error(err), zap.Int("session Id", c.GetSessionId()))
+		l.Logger().Info("RPCSession doExecute doSend", zap.Error(err), zap.Int("session Id", c.GetSessionId()))
 	}
 	et := time.Since(bt)
-	l.GetLogger().Info("RPCSession doExecute doSend used time", zap.Int64("time", int64(et)/int64(time.Millisecond)), zap.Int("session Id", c.GetSessionId()))
+	l.Logger().Info("RPCSession doExecute doSend used time", zap.Int64("time", int64(et)/int64(time.Millisecond)), zap.Int("session Id", c.GetSessionId()))
 
 	if isLogout { //响应客户端登出请求后关闭会话
 		c.Close()
@@ -214,7 +214,7 @@ func (c *rpcSession) doSend(packets [][]byte) error {
 }
 
 func (c *rpcSession) sendSessionState(state bool, ip []byte) {
-	l.GetLogger().Info("RPCSession sendSessionState", zap.Bool("state", state), zap.Int("session Id", c.GetSessionId()))
+	l.Logger().Info("RPCSession sendSessionState", zap.Bool("state", state), zap.Int("session Id", c.GetSessionId()))
 
 	if !state { //没有登录成功就退出，不设置状态
 		if c.user.getStatus() < SecondLogin {
@@ -249,7 +249,7 @@ func (c *rpcSession) doClose() bool {
 			c.user.setStatus(ClientLogout)
 		}
 
-		l.GetLogger().Info("RPCSession doClose set ListenState", zap.Int("Id", c.id), zap.Int("session Id", c.GetSessionId()))
+		l.Logger().Info("RPCSession doClose set ListenState", zap.Int("Id", c.id), zap.Int("session Id", c.GetSessionId()))
 		c.sendSessionState(false, nil)
 
 		//客户端有可能未注销订阅就（因异常等）断开了

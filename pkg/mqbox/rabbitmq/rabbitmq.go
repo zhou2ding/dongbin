@@ -115,29 +115,29 @@ func (r *RabbitMq) keepalive() {
 	select {
 	case err := <-r.closeConnChan:
 		if err != nil {
-			l.GetLogger().Error("AMQP connection was closed with error", zap.Error(err))
+			l.Logger().Error("AMQP connection was closed with error", zap.Error(err))
 		} else {
-			l.GetLogger().Error("AMQP connection was closed with no error")
+			l.Logger().Error("AMQP connection was closed with no error")
 		}
 		maxRetry := 99999999
 		for i := 0; i < maxRetry; i++ {
 			time.Sleep(5 * time.Second)
 			if err2 := r.reopen(); err2 != nil {
-				l.GetLogger().Info("AMQP reconnect failed", zap.Int("retry times", i+1), zap.Error(err2))
+				l.Logger().Info("AMQP reconnect failed", zap.Int("retry times", i+1), zap.Error(err2))
 				continue
 			}
 
 			for _, v := range r.producers {
 				e := v.Reopen(r.conn)
 				if e != nil {
-					l.GetLogger().Info("producer reopen failed", zap.Error(e))
+					l.Logger().Info("producer reopen failed", zap.Error(e))
 				}
 			}
 
 			for _, v := range r.consumers {
 				e := v.Reopen(r.conn)
 				if e != nil {
-					l.GetLogger().Info("consumer reopen failed", zap.Error(e))
+					l.Logger().Info("consumer reopen failed", zap.Error(e))
 				} else {
 					v.StartConsume()
 				}
@@ -148,7 +148,7 @@ func (r *RabbitMq) keepalive() {
 
 func (r *RabbitMq) reopen() error {
 	if len(r.host) == 0 {
-		l.GetLogger().Info("AMQP host len is 0")
+		l.Logger().Info("AMQP host len is 0")
 		return fmt.Errorf("AMQP host len is 0")
 	}
 
@@ -158,7 +158,7 @@ func (r *RabbitMq) reopen() error {
 	var err error
 	r.conn, err = amqp.Dial(r.host)
 	if err != nil {
-		l.GetLogger().Info("dial amqp failed")
+		l.Logger().Info("dial amqp failed")
 		return err
 	}
 

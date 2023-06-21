@@ -2,8 +2,8 @@ package jwtauth
 
 import (
 	"blog/pkg/auth"
-	"blog/pkg/v"
 	"blog/pkg/l"
+	"blog/pkg/v"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -103,7 +103,7 @@ func (j *JWTAuth) GenerateToken(userID string) (auth.Token, error) {
 
 	accessToken, err := token.SignedString(j.opts.signingKey)
 	if err != nil {
-		l.GetLogger().Error("SignedString failed", zap.Error(err))
+		l.Logger().Error("SignedString failed", zap.Error(err))
 		return nil, err
 	}
 
@@ -111,7 +111,7 @@ func (j *JWTAuth) GenerateToken(userID string) (auth.Token, error) {
 		return s.Set(userID+"_"+strconv.FormatInt(now.UnixNano(), 10), expire, j.opts.expired)
 	})
 	if err != nil {
-		l.GetLogger().Error("set store failed", zap.Error(err))
+		l.Logger().Error("set store failed", zap.Error(err))
 		return nil, err
 	}
 
@@ -162,7 +162,7 @@ func (j *JWTAuth) CheckToken(tokenStr string) (string, string, error) {
 			return err
 		}
 		if !exist {
-			l.GetLogger().Error("CheckToken token not exist", zap.String("key", claim.Subject))
+			l.Logger().Error("CheckToken token not exist", zap.String("key", claim.Subject))
 			return auth.ErrInvalidToken
 		}
 
@@ -187,7 +187,7 @@ func (j *JWTAuth) CheckToken(tokenStr string) (string, string, error) {
 func (j *JWTAuth) CheckTokenWithUpdate(tokenStr string) (string, error) {
 	userName, token, err := j.CheckToken(tokenStr)
 	if err != nil {
-		l.GetLogger().Error("CheckToken failed", zap.Error(err))
+		l.Logger().Error("CheckToken failed", zap.Error(err))
 		return "", err
 	}
 	if token == "" {
@@ -202,7 +202,7 @@ func (j *JWTAuth) CheckTokenWithUpdate(tokenStr string) (string, error) {
 		return ret
 	})
 	if err != nil {
-		l.GetLogger().Error("update token failed", zap.Error(err))
+		l.Logger().Error("update token failed", zap.Error(err))
 		return "", err
 	}
 	return userName, nil
@@ -223,7 +223,7 @@ func (j *JWTAuth) parseToken(tokenStr string) (*jwt.StandardClaims, error) {
 	if token == nil || token.Claims == nil {
 		return nil, auth.ErrInvalidToken
 	}
-	l.GetLogger().Info("parse token", zap.String("user name", token.Claims.(*jwt.StandardClaims).Subject))
+	l.Logger().Info("parse token", zap.String("user name", token.Claims.(*jwt.StandardClaims).Subject))
 	return token.Claims.(*jwt.StandardClaims), nil
 }
 

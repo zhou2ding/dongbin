@@ -1,9 +1,9 @@
 package sql
 
 import (
-	"blog/pkg/v"
 	"blog/pkg/internal/gormlog"
 	"blog/pkg/l"
+	"blog/pkg/v"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -18,7 +18,7 @@ func initMySQL() (*gorm.DB, error) {
 
 	url := dbUser + ":" + dbPwd + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName + "?charset=" + dbCharset + "&parseTime=True&loc=Local"
 
-	database, err := gorm.Open(mysql.Open(url), &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, Logger: gormlog.NewGormLogger(l.GetLogger())})
+	database, err := gorm.Open(mysql.Open(url), &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, Logger: gormlog.NewGormLogger(l.Logger())})
 	if err != nil {
 		return nil, err
 	}

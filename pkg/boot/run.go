@@ -60,12 +60,12 @@ func ListenAndServe(p *RunParam) {
 	defer server.Close()
 
 	go func(s *http.Server) {
-		l.GetLogger().Info("serving http", zap.Int("port", port))
+		l.Logger().Info("serving http", zap.Int("port", port))
 		if err := s.ListenAndServe(); err != nil {
 			if errors.Is(err, http.ErrServerClosed) {
-				l.GetLogger().Info("http Sever is closed")
+				l.Logger().Info("http Sever is closed")
 			} else {
-				l.GetLogger().Fatal("can not start http server", zap.Error(err))
+				l.Logger().Fatal("can not start http server", zap.Error(err))
 			}
 		}
 	}(&server)
@@ -74,10 +74,10 @@ func ListenAndServe(p *RunParam) {
 	signal.Notify(signalCh, os.Interrupt, syscall.SIGTERM)
 	select {
 	case <-signalCh:
-		l.GetLogger().Info("receive interrupt signal")
+		l.Logger().Info("receive interrupt signal")
 	}
 
-	l.GetLogger().Info("http service has stopped", zap.String("service", p.AppName))
+	l.Logger().Info("http service has stopped", zap.String("service", p.AppName))
 }
 
 func newRouter() *mux.Router {

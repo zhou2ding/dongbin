@@ -17,6 +17,6 @@ func (r *recoverLogger) Println(fields ...interface{}) {
 }
 
 func NewRecoverHandler(printStack bool) func(h http.Handler) http.Handler {
-	l := recoverLogger{l.GetLogger()}
+	l := recoverLogger{l.Logger()}
 	return handlers.RecoveryHandler(handlers.RecoveryLogger(&l), handlers.PrintRecoveryStack(printStack))
 }

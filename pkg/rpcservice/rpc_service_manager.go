@@ -31,7 +31,7 @@ type RPCServiceManager struct {
 }
 
 func (c *RPCServiceManager) Register(serviceName string, service RpcService) {
-	l.GetLogger().Info("register " + serviceName)
+	l.Logger().Info("register " + serviceName)
 	c.serviceMap[serviceName] = service
 }
 
@@ -42,7 +42,7 @@ func (c *RPCServiceManager) Unregister(serviceName string) {
 func (c *RPCServiceManager) Execute(key string, jsonReq []byte, binaryReq []byte, extraInfo interface{}) *RPCReply {
 	idx := strings.IndexByte(key, '.')
 	if idx < 0 {
-		l.GetLogger().Warn("RPCMethodManager Execute . Not Found")
+		l.Logger().Warn("RPCMethodManager Execute . Not Found")
 		return &RPCReply{
 			RetVal: ErrUnknownReqType,
 			ErrMsg: StatusText(ErrUnknownReqType),
@@ -53,7 +53,7 @@ func (c *RPCServiceManager) Execute(key string, jsonReq []byte, binaryReq []byte
 
 	srvc, ok := c.serviceMap[serviceName]
 	if !ok {
-		l.GetLogger().Warn("RPCMethodManager Execute service Not Found")
+		l.Logger().Warn("RPCMethodManager Execute service Not Found")
 		return &RPCReply{
 			RetVal: ErrServiceNotSupport,
 			ErrMsg: StatusText(ErrServiceNotSupport),
@@ -91,7 +91,7 @@ func (c *RPCServiceManager) Notify(msg *RPCMsg) {
 }
 
 func (c *RPCServiceManager) StartTopicListen(key string) error {
-	l.GetLogger().Info("StartTopicListen")
+	l.Logger().Info("StartTopicListen")
 	srvc := c.serviceMap[key]
 	reply := srvc.RPCCall(key+".attach", nil, nil, nil)
 	if reply.RetVal != 0 {
@@ -102,7 +102,7 @@ func (c *RPCServiceManager) StartTopicListen(key string) error {
 }
 
 func (c *RPCServiceManager) StopTopicListen(key string) error {
-	l.GetLogger().Info("StopTopicListen")
+	l.Logger().Info("StopTopicListen")
 	srvc := c.serviceMap[key]
 	reply := srvc.RPCCall(key+".detach", nil, nil, nil)
 	if reply.RetVal != 0 {

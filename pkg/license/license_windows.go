@@ -57,7 +57,7 @@ func (mgr *LicenseMgr) init(v *viper.Viper, logger *zap.Logger) error {
 }
 
 func (mgr *LicenseMgr) CheckValid() (bool, error) {
-	l.GetLogger().Info("Check license windows...")
+	l.Logger().Info("Check license windows...")
 	handle, err := syscall.LoadDLL(mgr.libPath)
 	if err != nil {
 		return false, err
@@ -78,22 +78,22 @@ func (mgr *LicenseMgr) CheckValid() (bool, error) {
 	var cHandle uint32
 	ret, _, lastErr := login.Call(feature, uintptr(unsafe.Pointer(vcstr)), uintptr(unsafe.Pointer(&cHandle)))
 	if lastErr != nil {
-		l.GetLogger().Info("login.Call lastErr", zap.String("lastErr", lastErr.Error()))
+		l.Logger().Info("login.Call lastErr", zap.String("lastErr", lastErr.Error()))
 	}
 	if ret != 0 {
-		l.GetLogger().Warn("login.Call failed")
+		l.Logger().Warn("login.Call failed")
 		return false, nil
 	}
 
 	ret, _, lastErr = logout.Call(uintptr(cHandle))
 	if lastErr != nil {
-		l.GetLogger().Info("logout.Call lastErr", zap.String("lastErr", lastErr.Error()))
+		l.Logger().Info("logout.Call lastErr", zap.String("lastErr", lastErr.Error()))
 	}
 	if ret != 0 {
-		l.GetLogger().Warn("logout.Call failed")
+		l.Logger().Warn("logout.Call failed")
 	}
 
-	l.GetLogger().Info("License is valid")
+	l.Logger().Info("License is valid")
 
 	return true, nil
 }

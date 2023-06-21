@@ -40,7 +40,7 @@ func GetLicenseMgrInstance() *LicenseMgr {
 }
 
 func (mgr *LicenseMgr) CheckValid() (bool, error) {
-	l.GetLogger().Info("Check license linux...")
+	l.Logger().Info("Check license linux...")
 	vcStr := C.CString(vendorCode)
 	defer C.free(unsafe.Pointer(vcStr))
 
@@ -51,7 +51,7 @@ func (mgr *LicenseMgr) CheckValid() (bool, error) {
 		(*C.uint)(unsafe.Pointer(&cHandle)),
 	)
 	if status != 0 {
-		l.GetLogger().Info("c_login failed")
+		l.Logger().Info("c_login failed")
 		return false, nil
 	}
 
@@ -59,10 +59,10 @@ func (mgr *LicenseMgr) CheckValid() (bool, error) {
 		C.uint(cHandle),
 	)
 	if status != 0 {
-		l.GetLogger().Info("c_logout failed")
+		l.Logger().Info("c_logout failed")
 	}
 
-	l.GetLogger().Info("License is valid")
+	l.Logger().Info("License is valid")
 
 	return true, nil
 }

@@ -1,8 +1,8 @@
 package filemanager
 
 import (
-	"blog/pkg/v"
 	"blog/pkg/l"
+	"blog/pkg/v"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"io/ioutil"
@@ -28,7 +28,7 @@ func GetFileManager() *FileManager {
 }
 
 func (c *FileManager) Init() error {
-	l.GetLogger().Info("Init FileManager")
+	l.Logger().Info("Init FileManager")
 	dir := v.GetViper().GetString("storage.homedir")
 	if dir == "" {
 		return errors.New("no home directory in configuration")
@@ -40,19 +40,19 @@ func (c *FileManager) Init() error {
 	if err := pathExistsOrCreate(c.file.homeDir); err != nil {
 		return err
 	}
-	l.GetLogger().Debug("init home dir", zap.String("homeDir", c.file.homeDir))
+	l.Logger().Debug("init home dir", zap.String("homeDir", c.file.homeDir))
 	return nil
 }
 
 func (c *FileManager) Read(path string) ([]byte, error) {
-	l.GetLogger().Info("Read file start", zap.String("file name", path))
+	l.Logger().Info("Read file start", zap.String("file name", path))
 	content, err := ioutil.ReadFile(c.file.homeDir + autoDir + strings.TrimPrefix(path, "/"))
 	if err != nil {
 		if os.IsNotExist(err) {
-			l.GetLogger().Warn("ReadFile find no result")
+			l.Logger().Warn("ReadFile find no result")
 			return nil, nil
 		}
-		l.GetLogger().Error("ReadFile error", zap.Error(err))
+		l.Logger().Error("ReadFile error", zap.Error(err))
 		return nil, err
 	}
 
@@ -60,7 +60,7 @@ func (c *FileManager) Read(path string) ([]byte, error) {
 }
 
 func (c *FileManager) Write(mode int, fileName string, createAt int64, fileData []byte) error {
-	l.GetLogger().Info("Write file start")
+	l.Logger().Info("Write file start")
 	write := writeValue{
 		Mode:     mode,
 		Dir:      c.file.homeDir + autoDir,
@@ -70,7 +70,7 @@ func (c *FileManager) Write(mode int, fileName string, createAt int64, fileData 
 	switch write.Mode {
 	case AutoPath:
 		if err := c.file.writeWithoutPath(&write, fileData); err != nil {
-			l.GetLogger().Error("writeWithoutPath failed", zap.Error(err))
+			l.Logger().Error("writeWithoutPath failed", zap.Error(err))
 			return err
 		}
 	}

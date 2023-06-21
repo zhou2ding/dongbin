@@ -1,8 +1,8 @@
 package cache
 
 import (
-	"blog/pkg/v"
 	"blog/pkg/l"
+	"blog/pkg/v"
 	"encoding/base64"
 	"encoding/json"
 	"github.com/go-redis/redis"
@@ -25,7 +25,7 @@ func InitRedis() (Cache, error) {
 		Password: pwd,
 	})
 	if _, err := cli.Ping().Result(); err != nil {
-		l.GetLogger().Error("connect to redis host failed", zap.String("host", host), zap.Error(err))
+		l.Logger().Error("connect to redis host failed", zap.String("host", host), zap.Error(err))
 		return nil, err
 	}
 
@@ -45,7 +45,7 @@ func (r *Redis) Set(key string, value interface{}, timeout int) error {
 
 	expire := time.Duration(timeout) * time.Second
 	if err = r.cli.Set(key, data, expire).Err(); err != nil {
-		l.GetLogger().Error("set cache failed", zap.String("key", key), zap.Error(err))
+		l.Logger().Error("set cache failed", zap.String("key", key), zap.Error(err))
 		return err
 	}
 	return nil
@@ -60,7 +60,7 @@ func (r *Redis) Get(key string, to interface{}, encode bool) error {
 
 	exist, err := r.Exists(key)
 	if err != nil {
-		l.GetLogger().Error("get cache exists failed", zap.String("key", key), zap.Error(err))
+		l.Logger().Error("get cache exists failed", zap.String("key", key), zap.Error(err))
 		return err
 	}
 	if !exist {
@@ -72,18 +72,18 @@ func (r *Redis) Get(key string, to interface{}, encode bool) error {
 		return errors.New("get cache no result")
 	}
 	if cmd.Err() != nil {
-		l.GetLogger().Error("get cache failed", zap.Error(err))
+		l.Logger().Error("get cache failed", zap.Error(err))
 		return cmd.Err()
 	}
 
 	if encode {
 		if err = r.decode(cmd.Val(), to); err != nil {
-			l.GetLogger().Error("get cache decode failed", zap.String("key", key), zap.Error(err))
+			l.Logger().Error("get cache decode failed", zap.String("key", key), zap.Error(err))
 			return err
 		}
 	} else {
 		if err = json.Unmarshal([]byte(cmd.Val()), to); err != nil {
-			l.GetLogger().Error("get cache unmarshal failed", zap.String("key", key), zap.Error(err))
+			l.Logger().Error("get cache unmarshal failed", zap.String("key", key), zap.Error(err))
 			return err
 		}
 	}
@@ -97,7 +97,7 @@ func (r *Redis) Del(key string) error {
 	}
 
 	if err := r.cli.Del(key).Err(); err != nil {
-		l.GetLogger().Error("del cache failed", zap.String("key", key), zap.Error(err))
+		l.Logger().Error("del cache failed", zap.String("key", key), zap.Error(err))
 		return err
 	}
 	return nil
@@ -111,7 +111,7 @@ func (r *Redis) Exists(key string) (bool, error) {
 
 	cmd := r.cli.Exists(key)
 	if err := cmd.Err(); err != nil {
-		l.GetLogger().Error("exists cache failed", zap.String("key", key), zap.Error(err))
+		l.Logger().Error("exists cache failed", zap.String("key", key), zap.Error(err))
 		return false, err
 	}
 
@@ -125,7 +125,7 @@ func (r *Redis) Expire(key string, timeout int) error {
 	}
 
 	if err := r.cli.Expire(key, time.Duration(timeout)*time.Second).Err(); err != nil {
-		l.GetLogger().Error("set cache expire time failed", zap.String("key", key), zap.Error(err))
+		l.Logger().Error("set cache expire time failed", zap.String("key", key), zap.Error(err))
 		return err
 	}
 	return nil

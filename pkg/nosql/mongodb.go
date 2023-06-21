@@ -52,17 +52,17 @@ func initMongo() error {
 
 	c, err := mongo.Connect(ctx, opts)
 	if err != nil {
-		l.GetLogger().Error("connect to mongodb failed", zap.Error(err))
+		l.Logger().Error("connect to mongodb failed", zap.Error(err))
 		return err
 	}
 
 	err = c.Ping(ctx, readpref.Primary())
 	if err != nil {
-		l.GetLogger().Error("ping mongodb failed", zap.Error(err))
+		l.Logger().Error("ping mongodb failed", zap.Error(err))
 		return err
 	}
 
 	dbName = v.GetViper().GetString("nosql.database_name")
-	l.GetLogger().Info("connect to mongodb success", zap.String("host", url))
+	l.Logger().Info("connect to mongodb success", zap.String("host", url))
 	return nil
 }

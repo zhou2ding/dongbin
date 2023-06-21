@@ -25,7 +25,7 @@ func Start(cli *Client) {
 	for {
 		m := <-cli.recvCh
 		msg := m.(*Message)
-		l.GetLogger().Info("receive message from broker", zap.Any("message", msg))
+		l.Logger().Info("receive message from broker", zap.Any("message", msg))
 		// todo 增加协程池
 	}
 }

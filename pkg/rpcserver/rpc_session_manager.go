@@ -93,7 +93,7 @@ func (c *sessionMgr) keepSessionGuarded(aliveTime int64) {
 		select {
 		case t := <-ticker.C:
 			now := t.Unix()
-			l.GetLogger().Info("keepSessionGuarded", zap.Time("now", t))
+			l.Logger().Info("keepSessionGuarded", zap.Time("now", t))
 			for id, ctx := range c.guardContexts {
 				if now > ctx.lastOptTime && now-ctx.lastOptTime > aliveTime {
 					ctx.guarder.OnTimeout()
@@ -109,10 +109,10 @@ func (c *sessionMgr) keepSessionGuarded(aliveTime int64) {
 func (c *sessionMgr) parseSessionOperateMessage(msg *sessionOperateMessage) {
 	switch msg.action {
 	case register:
-		l.GetLogger().Info("sessionMgr register ", zap.Int("session Id", msg.guarder.GetSessionId()))
+		l.Logger().Info("sessionMgr register ", zap.Int("session Id", msg.guarder.GetSessionId()))
 		_, ok := c.guardContexts[msg.guarder.GetSessionId()]
 		if ok {
-			l.GetLogger().Warn("repeat register sessionMonitor!")
+			l.Logger().Warn("repeat register sessionMonitor!")
 			return
 		}
 		c.guardContexts[msg.guarder.GetSessionId()] = &sessionGuardCtx{
@@ -122,12 +122,12 @@ func (c *sessionMgr) parseSessionOperateMessage(msg *sessionOperateMessage) {
 	case update:
 		fallthrough
 	case updateAndClear:
-		l.GetLogger().Info("sessionMgr update", zap.Int("session Id", msg.guarder.GetSessionId()))
+		l.Logger().Info("sessionMgr update", zap.Int("session Id", msg.guarder.GetSessionId()))
 		_, ok := c.guardContexts[msg.guarder.GetSessionId()]
 		if ok {
 			c.guardContexts[msg.guarder.GetSessionId()].lastOptTime = msg.time
 		} else {
-			l.GetLogger().Warn("update non-existent sessionGuarder!")
+			l.Logger().Warn("update non-existent sessionGuarder!")
 			return
 		}
 
@@ -135,19 +135,19 @@ func (c *sessionMgr) parseSessionOperateMessage(msg *sessionOperateMessage) {
 			//相同的用户，新会话建立时，若有老会话存在，删除老会话
 			for sessionId, ctx := range c.guardContexts {
 				if ctx.guarder.Id() == msg.guarder.Id() && sessionId != msg.guarder.GetSessionId() {
-					l.GetLogger().Info("sessionMgr delete old sessionGuarder", zap.Int("session Id", sessionId))
+					l.Logger().Info("sessionMgr delete old sessionGuarder", zap.Int("session Id", sessionId))
 					ctx.guarder.OnTimeout()
 					delete(c.guardContexts, sessionId)
 				}
 			}
 		}
 	case unregister:
-		l.GetLogger().Info("sessionMgr unregister ", zap.Int("session Id", msg.guarder.GetSessionId()))
+		l.Logger().Info("sessionMgr unregister ", zap.Int("session Id", msg.guarder.GetSessionId()))
 		_, ok := c.guardContexts[msg.guarder.GetSessionId()]
 		if ok {
 			delete(c.guardContexts, msg.guarder.GetSessionId())
 		} else {
-			l.GetLogger().Warn("unregister non-existent sessionGuarder!")
+			l.Logger().Warn("unregister non-existent sessionGuarder!")
 		}
 	}
 }

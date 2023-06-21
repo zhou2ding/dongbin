@@ -1,8 +1,8 @@
 package boot
 
 import (
-	"blog/pkg/v"
 	"blog/pkg/l"
+	"blog/pkg/v"
 	"blog/pkg/version"
 	"flag"
 	"fmt"
@@ -29,5 +29,5 @@ func StartUp(appName string) {
 		panic(err)
 	}
 
-	l.GetLogger().Info("start service", zap.String("service", appName), zap.Any("version", version.GetVersionInfo()))
+	l.Logger().Info("start service", zap.String("service", appName), zap.Any("version", version.GetVersionInfo()))
 }

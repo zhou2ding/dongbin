@@ -46,11 +46,11 @@ func (c *WsClient) write() {
 		select {
 		case message, ok := <-c.SendCh:
 			if !ok {
-				l.GetLogger().Warn("sendChan is closed")
+				l.Logger().Warn("sendChan is closed")
 				_ = c.Socket.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
-			l.GetLogger().Debug("send a message to websocket")
+			l.Logger().Debug("send a message to websocket")
 			_ = c.Socket.WriteMessage(websocket.TextMessage, message)
 		}
 	}
