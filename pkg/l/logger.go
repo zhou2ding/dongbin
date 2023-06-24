@@ -4,6 +4,11 @@ import (
 	"go.uber.org/zap"
 )
 
+type DLogger interface {
+	Debug()
+	Debugf()
+}
+
 var gLogger *zap.Logger
 
 func InitLogger(prefix string) error {
