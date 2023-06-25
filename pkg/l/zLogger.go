@@ -9,13 +9,17 @@ import (
 	"strings"
 )
 
+type zLogger struct {
+	*zap.SugaredLogger
+}
+
 const (
 	defaultMaxSize    = 128 // MB
 	defaultMaxAge     = 60  // day
 	defaultMaxBackups = 30  // 个
 )
 
-func newLogger(appName string, opt ...zap.Option) (*zap.Logger, error) {
+func newLogger(appName string, opt ...zap.Option) (*zLogger, error) {
 	// log level
 	level := new(zapcore.Level)
 	if err := level.UnmarshalText([]byte(v.GetViper().GetString("log_level"))); err != nil {
@@ -68,5 +72,73 @@ func newLogger(appName string, opt ...zap.Option) (*zap.Logger, error) {
 	caller := zap.AddCaller() // write filename, line number, and function name in log
 	dev := zap.Development()  // development mode, write panic detail in log
 
-	return zap.New(core, caller, dev), nil
+	return &zLogger{zap.New(core, caller, dev).Sugar()}, nil
+}
+
+func (z *zLogger) Print(v ...interface{}) {
+	z.SugaredLogger.Debug(v...)
+}
+func (z *zLogger) Printf(format string, v ...interface{}) {
+	z.SugaredLogger.Debugf(format, v...)
+}
+
+func (z *zLogger) Fatal(v ...interface{}) {
+	z.SugaredLogger.Fatal(v...)
+}
+func (z *zLogger) Fatalf(format string, v ...interface{}) {
+	z.SugaredLogger.Fatalf(format, v...)
+}
+
+func (z *zLogger) Panic(v ...interface{}) {
+	z.SugaredLogger.Panic(v...)
+}
+func (z *zLogger) Panicf(format string, v ...interface{}) {
+	z.SugaredLogger.Panicf(format, v...)
+}
+
+func (z *zLogger) Info(v ...interface{}) {
+	z.SugaredLogger.Info(v...)
+}
+func (z *zLogger) Infof(format string, v ...interface{}) {
+	z.SugaredLogger.Infof(format, v...)
+}
+
+func (z *zLogger) Debug(v ...interface{}) {
+	z.SugaredLogger.Debug(v...)
+}
+func (z *zLogger) Debugf(format string, v ...interface{}) {
+	z.SugaredLogger.Debugf(format, v...)
+}
+
+func (z *zLogger) Notice(v ...interface{}) {
+	z.SugaredLogger.Info(v...)
+}
+func (z *zLogger) Noticef(format string, v ...interface{}) {
+	z.SugaredLogger.Infof(format, v...)
+}
+
+func (z *zLogger) Warning(v ...interface{}) {
+	z.SugaredLogger.Warn(v...)
+}
+func (z *zLogger) Warningf(format string, v ...interface{}) {
+	z.SugaredLogger.Warnf(format, v...)
+}
+
+func (z *zLogger) Error(v ...interface{}) {
+	z.SugaredLogger.Error(v...)
+
+}
+func (z *zLogger) Errorf(format string, v ...interface{}) {
+	z.SugaredLogger.Errorf(format, v...)
+}
+
+func (z *zLogger) Critical(v ...interface{}) {
+	z.SugaredLogger.Panic(v...)
+}
+func (z *zLogger) Criticalf(format string, v ...interface{}) {
+	z.SugaredLogger.Panicf(format, v...)
+}
+
+func (z *zLogger) Cat(category string) DBLogger {
+	return z
 }
