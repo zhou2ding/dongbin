@@ -1,5 +1,10 @@
 package l
 
+import (
+	"blog/pkg/v"
+	"github.com/pkg/errors"
+)
+
 type DBLogger interface {
 	Print(v ...interface{})
 	Printf(format string, v ...interface{})
@@ -25,9 +30,17 @@ type DBLogger interface {
 var gLogger DBLogger
 
 func InitLogger(prefix string) error {
-	logger, err := newLogger(prefix)
-	gLogger = logger
-	return err
+	logType := v.GetViper().GetString("log.type")
+	switch logType {
+	case "zap":
+		logger, err := newLogger(prefix)
+		if err != nil {
+			return err
+		}
+		gLogger = logger
+		return nil
+	}
+	return errors.New("wrong log type, please check configuration")
 }
 
 func Logger() DBLogger {
