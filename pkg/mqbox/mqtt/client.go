@@ -2,10 +2,24 @@ package mqtt
 
 import (
 	"blog/pkg/l"
+	"crypto/tls"
+	"crypto/x509"
 	"github.com/eclipse/paho.mqtt.golang"
 	"go.uber.org/zap"
+	"log"
+	"os"
 	"time"
 )
+
+type ConConfig struct {
+	Broker   string
+	Topic    string
+	Username string
+	Password string
+	Cafile   string
+	Cert     string
+	Key      string
+}
 
 func newMqttClient(username, password, clientId string, topics []string) *Client {
 	recvCh := make(chan interface{}, 10000)
@@ -54,4 +68,19 @@ func newMqttClient(username, password, clientId string, topics []string) *Client
 	}
 	l.Logger().Info("connect to mqtt server!", zap.String("client id", clientId))
 	return cli
+}
+
+func loadTLSConfig(config *ConConfig) *tls.Config {
+	var tlsConfig tls.Config
+	tlsConfig.InsecureSkipVerify = false
+	if config.Cafile != "" {
+		certpool := x509.NewCertPool()
+		ca, err := os.ReadFile(config.Cafile)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+		certpool.AppendCertsFromPEM(ca)
+		tlsConfig.RootCAs = certpool
+	}
+	return &tlsConfig
 }
