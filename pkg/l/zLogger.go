@@ -20,9 +20,23 @@ const (
 )
 
 func newLogger(appName string, opt ...zap.Option) (*zLogger, error) {
-	// log level
-	level := new(zapcore.Level)
-	if err := level.UnmarshalText([]byte(v.GetViper().GetString("log_level"))); err != nil {
+	lvTransfer := map[string]string{
+		"DEBU":    "debug",
+		"ERRO":    "error",
+		"WARNING": "warn",
+
+		"NOTI":     "info",
+		"NOTICE":   "info",
+		"CRIT":     "dpanic",
+		"CRITICAL": "dpanic",
+	}
+	lvStr := v.GetViper().GetString("logger.level")
+	if s, ok := lvTransfer[lvStr]; ok {
+		lvStr = s
+	}
+	// log lv
+	lv := new(zapcore.Level)
+	if err := lv.UnmarshalText([]byte(lvStr)); err != nil {
 		return nil, err
 	}
 	// log path
@@ -47,7 +61,7 @@ func newLogger(appName string, opt ...zap.Option) (*zLogger, error) {
 	writeSyncer := make([]zapcore.WriteSyncer, 0)
 	if len(path) > 0 {
 		writeSyncer = append(writeSyncer, zapcore.AddSync(&lumberjack.Logger{
-			Filename:   strings.Trim(path, "/") + "/" + appName + ".log",
+			Filename:   strings.TrimRight(path, "/") + "/" + appName + ".log",
 			MaxSize:    maxSize,
 			MaxAge:     maxAge,     // max save days
 			MaxBackups: maxBackups, // max counts of backup file
@@ -67,7 +81,7 @@ func newLogger(appName string, opt ...zap.Option) (*zLogger, error) {
 	core := zapcore.NewCore(
 		zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()), // encoder config
 		zapcore.NewMultiWriteSyncer(writeSyncer...),                  // destination of writing log
-		zap.NewAtomicLevelAt(*level),                                 // log level
+		zap.NewAtomicLevelAt(*lv),                                    // log lv
 	)
 	caller := zap.AddCaller() // write filename, line number, and function name in log
 	dev := zap.Development()  // development mode, write panic detail in log
