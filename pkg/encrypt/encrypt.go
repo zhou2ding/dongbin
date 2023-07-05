@@ -16,3 +16,9 @@ func Encrypt(s string, salts ...string) string {
 	}
 	return hex.EncodeToString(m5.Sum(nil))
 }
+
+func GetMd5String(s string) string {
+	h := md5.New()
+	h.Write([]byte(s))
+	return hex.EncodeToString(h.Sum(nil))
+}
