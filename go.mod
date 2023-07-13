@@ -3,12 +3,14 @@ module blog
 go 1.20
 
 require (
+	github.com/aws/aws-sdk-go v1.44.299
 	github.com/brianvoe/gofakeit/v6 v6.19.0
 	github.com/eclipse/paho.mqtt.golang v1.4.2
 	github.com/gogf/gf v1.16.9
 	github.com/minio/minio-go/v7 v7.0.58
 	github.com/minio/pkg v1.7.5
 	github.com/pkg/errors v0.9.1
+	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/viper v1.11.0
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/zap v1.24.0
@@ -16,7 +18,6 @@ require (
 )
 
 require (
-	github.com/aws/aws-sdk-go v1.44.299 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
@@ -24,6 +25,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
