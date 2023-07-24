@@ -12,7 +12,6 @@ type MqBox interface {
 	Close()
 	StartMqProducer(topic string) error
 	StartMqConsumer(topic string, name string, channel chan *Message) error
-	Publish(topic string, msg *Message) error
 }
 
 var gMqBox MqBox

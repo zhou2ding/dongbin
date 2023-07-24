@@ -21,7 +21,7 @@ type ConConfig struct {
 	Key      string
 }
 
-func newMqttClient(username, password, clientId string, topics []string) *Client {
+func newMqttClient(name, username, password, clientId string, topics []string) *Client {
 	recvCh := make(chan interface{}, 10000)
 	var publishHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {
 		msg := &Message{
@@ -44,7 +44,7 @@ func newMqttClient(username, password, clientId string, topics []string) *Client
 	}
 
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker("").
+	opts.AddBroker(name).
 		SetUsername(username).
 		SetPassword(password).
 		SetClientID(clientId).

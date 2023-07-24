@@ -38,8 +38,8 @@ func (r *RabbitConsumer) Name() string {
 	return r.name
 }
 
-func (r *RabbitConsumer) Topic() string {
-	return r.topic
+func (r *RabbitConsumer) Topic() []string {
+	return []string{r.topic}
 }
 
 func (r *RabbitConsumer) Open(mq interface{}) error {

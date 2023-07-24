@@ -111,6 +111,10 @@ func (r *RabbitMq) StartMqProducer(topic string) error {
 	return nil
 }
 
+func (r *RabbitMq) StartMqConsumer(topic string, name string, channel chan *mqbox.Message) error {
+	return nil
+}
+
 func (r *RabbitMq) keepalive() {
 	select {
 	case err := <-r.closeConnChan:

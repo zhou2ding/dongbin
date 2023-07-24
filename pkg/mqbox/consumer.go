@@ -2,7 +2,7 @@ package mqbox
 
 type Consumer interface {
 	Name() string
-	Topic() string
+	Topic() []string
 
 	Open(mq interface{}) error
 	Reopen(mq interface{}) error
