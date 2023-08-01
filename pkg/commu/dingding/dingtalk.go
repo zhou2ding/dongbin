@@ -32,7 +32,7 @@ func encrypt() (int64, string) {
 	return timestamp, sign
 }
 
-func sendDingTalkMessage(message string) error {
+func SendDingTalkMessage(message string) error {
 	t, s := encrypt()
 	webhookURL := "https://oapi.dingtalk.com/robot/send?access_token=ed3b5bc1200a7d67e0217146aac0f0a17eb90c9a0f5084237826b07918d16d00" +
 		fmt.Sprintf("&timestamp=%d&sign=%s", t, s)
