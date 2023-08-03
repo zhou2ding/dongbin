@@ -5,7 +5,6 @@ import (
 	"blog/pkg/v"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
-	"io/ioutil"
 	"os"
 	"strings"
 	"sync"
@@ -46,10 +45,10 @@ func (c *FileManager) Init() error {
 
 func (c *FileManager) Read(path string) ([]byte, error) {
 	l.Logger().Info("Read file start", zap.String("file name", path))
-	content, err := ioutil.ReadFile(c.file.homeDir + autoDir + strings.TrimPrefix(path, "/"))
+	content, err := os.ReadFile(c.file.homeDir + autoDir + strings.TrimPrefix(path, "/"))
 	if err != nil {
 		if os.IsNotExist(err) {
-			l.Logger().Warn("ReadFile find no result")
+			l.Logger().Warning("ReadFile find no result")
 			return nil, nil
 		}
 		l.Logger().Error("ReadFile error", zap.Error(err))

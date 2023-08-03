@@ -3,7 +3,7 @@ package filemanager
 import (
 	"blog/pkg/l"
 	"go.uber.org/zap"
-	"io/ioutil"
+	"os"
 	"path"
 )
 
@@ -20,7 +20,7 @@ func (c *file) writeWithoutPath(val *writeValue, data []byte) error {
 	fullName := path.Base(val.FileName)
 	fullPath := val.Dir + fullName
 	l.Logger().Info("writeWithoutPath", zap.String("full path", fullPath))
-	if err := ioutil.WriteFile(fullPath, data, 0666); err != nil {
+	if err := os.WriteFile(fullPath, data, 0666); err != nil {
 		l.Logger().Error("WriteFile error", zap.Error(err))
 		return err
 	}

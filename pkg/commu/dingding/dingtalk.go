@@ -1,6 +1,7 @@
 package dingding
 
 import (
+	"blog/pkg/l"
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
@@ -8,7 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gogf/gf/util/gconv"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -41,18 +42,18 @@ func SendDingTalkMessage(message string) error {
 		Text: struct {
 			Content string `json:"content"`
 		}{
-			Content: fmt.Sprintf("%s", message),
+			Content: message,
 		},
 	}
 
 	jsonBody, err := json.Marshal(dingTalkMessage)
 	if err != nil {
-		return fmt.Errorf("failed to marshal DingTalk message: %v", err)
+		return err
 	}
 
 	resp, err := http.Post(webhookURL, "application/json", bytes.NewBuffer(jsonBody))
 	if err != nil {
-		return fmt.Errorf("failed to send DingTalk message: %v", err)
+		return err
 	}
 	defer resp.Body.Close()
 
@@ -60,12 +61,10 @@ func SendDingTalkMessage(message string) error {
 		return fmt.Errorf("failed to send DingTalk message: %s", resp.Status)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("failed to read response body: %v", err)
 	}
-
-	fmt.Println(string(body))
-
+	l.Logger().Infof("send ding ding msg response: %s", string(body))
 	return nil
 }
