@@ -1,6 +1,9 @@
 package fun
 
-import "strconv"
+import (
+	"github.com/brianvoe/gofakeit/v6"
+	"strconv"
+)
 
 func Sum[T ZdbBaseType](p []T) T {
 	var sum T
@@ -33,4 +36,19 @@ func IncrByNStr(p []string) string {
 		ret += idx * step
 	}
 	return strconv.Itoa(ret)
+}
+
+// Rand 形参的第一个元素为随机范围的下限，第二个元素为随机范围的上限
+func Rand[T ZdbNumber](p []T) T {
+	i := interface{}(p[0])
+	switch i.(type) {
+	case int:
+		return T(gofakeit.IntRange(int(p[0]), int(p[1])))
+	case float32:
+		return T(gofakeit.Float32Range(float32(p[0]), float32(p[1])))
+	case float64:
+		return T(gofakeit.Float64Range(float64(p[0]), float64(p[1])))
+	default:
+		return 0
+	}
 }
