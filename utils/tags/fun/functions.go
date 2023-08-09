@@ -3,6 +3,7 @@ package fun
 import (
 	"github.com/brianvoe/gofakeit/v6"
 	"strconv"
+	"unicode"
 )
 
 func Sum[T ZdbBaseType](p []T) T {
@@ -51,4 +52,30 @@ func Rand[T ZdbNumber](p []T) T {
 	default:
 		return 0
 	}
+}
+
+// RandStr 形参的第一个元素（只能是数字或字母）为随机范围的下限，第二个元素（只能是数字或字母）为随机范围的上限
+func RandStr(p []string) string {
+	if unicode.IsLetter(rune(p[0][0])) {
+		var s string
+		for i := 0; i < len(p[0]); i++ {
+			s += gofakeit.RandomString(getLetters(string(p[0][i]), string(p[1][i])))
+		}
+		return s
+	} else if unicode.IsDigit(rune(p[0][0])) {
+		min, _ := strconv.Atoi(p[0])
+		max, _ := strconv.Atoi(p[1])
+		return strconv.Itoa(gofakeit.IntRange(min, max))
+	}
+	return ""
+}
+
+func getLetters(min, max string) []string {
+	start := rune(min[0])
+	end := rune(max[0])
+	letters := make([]string, 0)
+	for i := int(start); i <= int(end); i++ {
+		letters = append(letters, string(rune(i)))
+	}
+	return letters
 }
