@@ -1,6 +1,7 @@
 package fun
 
 import (
+	"fmt"
 	"github.com/brianvoe/gofakeit/v6"
 	"strconv"
 	"unicode"
@@ -68,6 +69,20 @@ func RandStr(p []string) string {
 		return strconv.Itoa(gofakeit.IntRange(min, max))
 	}
 	return ""
+}
+
+// ToStrf 形参切片的最后一个元素为结果字符串的格式，剩余的元素为要转成指定格式的字符串
+func ToStrf(p []string) string {
+	strs := p[:len(p)-1]
+	var s string
+	for _, str := range strs {
+		s += str
+	}
+	return fmt.Sprintf(p[len(p)-1], s)
+}
+
+func Array[T ZdbArray](n int, p T) {
+
 }
 
 func getLetters(min, max string) []string {
