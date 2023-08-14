@@ -3,7 +3,9 @@ package fun
 import (
 	"fmt"
 	"github.com/brianvoe/gofakeit/v6"
+	"reflect"
 	"strconv"
+	"time"
 	"unicode"
 )
 
@@ -85,12 +87,14 @@ func Array[T ZdbArray](n int, p T) {
 
 }
 
-func getLetters(min, max string) []string {
-	start := rune(min[0])
-	end := rune(max[0])
-	letters := make([]string, 0)
-	for i := int(start); i <= int(end); i++ {
-		letters = append(letters, string(rune(i)))
-	}
-	return letters
+// Time 形参切片的第一个元素为指定时间转换的字符串，第二个元素为需要的时间格式，eg: Time(time.Now().Format("2006-01-02 15:04:05"),"2006/01/02")
+func Time(p []string) string {
+	t, _ := time.Parse("2006-01-02 15:04:05", p[0])
+	return t.Format(p[1])
+}
+
+func This(field string, origin reflect.Value, rType reflect.Type) any {
+	// this函数目前只支持单级调用，不支持根据索引在数组中查找
+	ret := getRefVal(field, "", nil, origin, rType)
+	return ret
 }
