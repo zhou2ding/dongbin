@@ -23,24 +23,7 @@ nowDay=$(date "+%Y%m%d")
 
 #当前是全量设备的数据，后续可配置设备
 files=(
-	"train_records.bson"
-	"train_records.metadata.json"
-	"detections_panto.bson"
-	"detections_panto.metadata.json"
-	"faults_panto.bson"
-	"faults_panto.metadata.json"
-	"detections_360.bson"
-	"detections_360.metadata.json"
-	"faults_360.bson"
-	"faults_360.metadata.json"
-	"measurements_twd.bson"
-	"measurements_twd.metadata.json"
-	"faults_twd.bson"
-	"faults_twd.metadata.json"
-	"faults_twd2d.bson"
-	"faults_twd2d.metadata.json"
-	"simple_train_records.bson"
-	"simple_train_records.metadata.json"
+	"demo.bson"
 	)
 
 exist=0
