@@ -24,8 +24,13 @@ type Cache interface {
 func InitCache() error {
 	l.Logger().Info("init cache")
 	cacheType := v.GetViper().GetString("cache.type")
+	var err error
 	switch cacheType {
 	case redisType:
+		gCache, err = InitRedis()
+		if err != nil {
+			return err
+		}
 	case memoryType:
 	}
 	return nil
