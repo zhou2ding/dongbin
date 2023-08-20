@@ -1,4 +1,4 @@
-package filemanager
+package basefile
 
 import (
 	"github.com/pkg/errors"
