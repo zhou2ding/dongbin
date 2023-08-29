@@ -39,6 +39,10 @@ func onRegister(req sip.Request, tx sip.ServerTransaction) {
 	}
 }
 
+func onMessage(req sip.Request, tx sip.ServerTransaction) {
+
+}
+
 func onBye(req sip.Request, tx sip.ServerTransaction) {
 	err := tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, "OK", ""))
 	if err != nil {

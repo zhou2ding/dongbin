@@ -13,11 +13,11 @@ func StartServer(ctx context.Context) error {
 	initRoutes()
 	cfg := gosip.ServerConfig{}
 	srv := gosip.NewServer(cfg, nil, nil, nil)
-	err := srv.OnRequest(sip.REGISTER, nil)
+	err := srv.OnRequest(sip.REGISTER, onRegister)
 	if err != nil {
 		return err
 	}
-	err = srv.OnRequest(sip.MESSAGE, nil)
+	err = srv.OnRequest(sip.MESSAGE, onMessage)
 	if err != nil {
 		return err
 	}
