@@ -2,8 +2,10 @@ package gb28181
 
 import (
 	"blog/pkg/v"
+	"context"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/ghettovoice/gosip/sip"
+	"net/http"
 )
 
 func CreateRequest(Method sip.RequestMethod) (req sip.Request) {
@@ -40,4 +42,23 @@ func CreateRequest(Method sip.RequestMethod) (req sip.Request) {
 	req.SetTransport("")
 	req.SetDestination("")
 	return
+}
+
+func Catalog() int {
+	request := CreateRequest(sip.MESSAGE)
+	expires := sip.Expires(3600)
+	contentType := sip.ContentType("Application/MANSCDP+xml")
+
+	request.AppendHeader(&contentType)
+	request.AppendHeader(&expires)
+	// 输出Sip请求设备通道信息信令
+	resp, err := SipRequestForResponse(request)
+	if err == nil && resp != nil {
+		return int(resp.StatusCode())
+	}
+	return http.StatusRequestTimeout
+}
+
+func SipRequestForResponse(request sip.Request) (sip.Response, error) {
+	return gServer.RequestWithContext(context.Background(), request)
 }

@@ -8,24 +8,28 @@ import (
 	"strings"
 )
 
+var (
+	gServer gosip.Server
+)
+
 func StartServer(ctx context.Context) error {
 	// todo NewServer的logger后续增加，补充注册和MESSAGE函数
 	initRoutes()
 	cfg := gosip.ServerConfig{}
-	srv := gosip.NewServer(cfg, nil, nil, nil)
-	err := srv.OnRequest(sip.REGISTER, onRegister)
+	gServer = gosip.NewServer(cfg, nil, nil, nil)
+	err := gServer.OnRequest(sip.REGISTER, onRegister)
 	if err != nil {
 		return err
 	}
-	err = srv.OnRequest(sip.MESSAGE, onMessage)
+	err = gServer.OnRequest(sip.MESSAGE, onMessage)
 	if err != nil {
 		return err
 	}
-	err = srv.OnRequest(sip.BYE, onBye)
+	err = gServer.OnRequest(sip.BYE, onBye)
 	if err != nil {
 		return err
 	}
-	err = srv.Listen("", "")
+	err = gServer.Listen("", "")
 	if err != nil {
 		return err
 	}
